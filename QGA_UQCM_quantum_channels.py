@@ -1,5 +1,4 @@
 import quantum_mats as qm
-#import matplotlib.pyplot as plt
 import itertools
 import numpy as np
 import scipy.sparse
@@ -9,10 +8,8 @@ import time
 
 
 def get_fixed_points_after_crossover(u=None, show_progress=True):
-    g = 5
     n = 4
     cl = 2
-    pm = 1 / n / cl
 
     # SORT
     a = int(np.ceil(n / 2) * (n - 1))
@@ -20,11 +17,6 @@ def get_fixed_points_after_crossover(u=None, show_progress=True):
     criteria = lambda x, y: sum(int(xi) * 2 ** (len(x) - i - 1) for i, xi in enumerate(x)) > sum(
         int(yi) * 2 ** (len(y) - i - 1) for i, yi in enumerate(y))
 
-    # u = special_ortho_group.rvs(2 ** cl)
-    # u = np.array([[0.29419042, 0.27876697, -0.66839818, 0.6236865],
-    #              [0.45200546, -0.83398993, -0.28231706, -0.14299979],
-    #              [0.45433315, 0.46058814, -0.27247138, -0.71217927],
-    #              [-0.70903064, -0.12086497, -0.63190213, -0.28873328]])
     if u is None:
         u = np.identity(4)
 
@@ -74,8 +66,6 @@ def get_fixed_points_after_crossover(u=None, show_progress=True):
 
         Ek = np.zeros((2 ** (n * cl), 2 ** (n * cl)))
         for i in range(2 ** (n * cl)):
-            # for j in range(2 ** (n * cl)):
-            #    Ek[i, j] = sort_unitary.get(k + i * 2 ** a, j * 2 ** a)
             for j, element in sort_unitary.row(k + i * 2 ** a):
                 if j % (2 ** a) == 0:
                     Ek[i, j // (2 ** a)] = element
@@ -114,7 +104,6 @@ def get_fixed_points_after_crossover(u=None, show_progress=True):
 
     # DEFINE Ek (The operators describing the process though a generation)
 
-    # E = np.zeros((mat_clone.shape[0]**2, mat_clone.shape[1]**2), dtype=np.float32)
     E = scipy.sparse.csr_matrix((mat_clone.shape[0] ** 2, mat_clone.shape[1] ** 2), dtype=np.float32)
     i = 0
     k = 0
@@ -126,11 +115,6 @@ def get_fixed_points_after_crossover(u=None, show_progress=True):
             Ek_arr.append(Ek)
             np.save("Qchannel_canonical_case/E_{:d}".format(k), Ek)
             E += scipy.sparse.kron(Ek.conjugate(), Ek)
-            # E += np.kron(Ek.conjugate(), Ek)
-            # Ekk = Ek.conjugate()[:, np.newaxis, :, np.newaxis]
-            # Ekk = Ekk[:, np.newaxis, :, np.newaxis] * Ek[np.newaxis, :, np.newaxis, :]
-            # Ekk.shape = (Ek.shape[0] ** 2, Ek.shape[1] ** 2)
-            # E += Ekk
         i += 1
         if show_progress:
             print("Competition: {:.2f} %".format(i / len(Es_arr) * 100))
@@ -154,10 +138,8 @@ def get_fixed_points_after_crossover(u=None, show_progress=True):
 
 
 def get_fixed_points_after_sort(u=None, show_progress=True):
-    g = 5
     n = 4
     cl = 2
-    pm = 1 / n / cl
 
     # SORT
     a = int(np.ceil(n / 2) * (n - 1))
@@ -214,8 +196,6 @@ def get_fixed_points_after_sort(u=None, show_progress=True):
 
         Ek = np.zeros((2 ** (n * cl), 2 ** (n * cl)))
         for i in range(2 ** (n * cl)):
-            # for j in range(2 ** (n * cl)):
-            #    Ek[i, j] = sort_unitary.get(k + i * 2 ** a, j * 2 ** a)
             for j, element in sort_unitary.row(k + i * 2 ** a):
                 if j % (2 ** a) == 0:
                     Ek[i, j // (2 ** a)] = element
@@ -269,7 +249,6 @@ def get_fixed_points_after_sort(u=None, show_progress=True):
             k += 1
             Ek = np.array(Es @ mat_cross @ Ekj, dtype=np.float32)
             Ek_arr.append(Ek)
-            np.save("QC_UQCM_canonical_case/E_{:d}".format(k), Ek)
             E += scipy.sparse.kron(Ek.conjugate(), Ek)
         i += 1
         if show_progress:
@@ -308,11 +287,6 @@ if __name__ == '__main__':
     cl = 2
     pm = 0
 
-    #u = special_ortho_group.rvs(2 ** cl)
-    #u = np.array([[0.29419042, 0.27876697, -0.66839818, 0.6236865],
-    #               [0.45200546, -0.83398993, -0.28231706, -0.14299979],
-    #               [0.45433315, 0.46058814, -0.27247138, -0.71217927],
-    #               [-0.70903064, -0.12086497, -0.63190213, -0.28873328]])
     u = np.identity(4)
     w, A_arr = get_fixed_points_after_sort(u)
 
@@ -320,7 +294,6 @@ if __name__ == '__main__':
     fixed_point_index = 0
     for A in A_arr:
         fixed_point_index += 1
-        np.save("QC_UQCM_canonical_case/fixed_point_{:d}".format(fixed_point_index), A)
 
         pi, vi = linalg.eig(A)
         print("Eigenvalues of the density matrix:")
