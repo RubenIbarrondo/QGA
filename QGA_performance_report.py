@@ -1,7 +1,6 @@
 """
-.. module:: QGA_QF_performance_report.py
-    :synopsis: Some functions to analyse and plot the performance of QGA
-    with quantum fitness.
+.. module:: QGA_performance_report.py
+    :synopsis: Some functions to analyse and plot the performance of the QGA.
 .. moduleauthor::  Ruben Ibarrondo (rubenibarrondo@gmail.com)
 """
 
@@ -83,9 +82,8 @@ def get_concordance_product(fidelity_matrix):
 
 
 def parse_fidelity_track(filepath, version=0):
-    # adaptar para que pueda leer arrais escritos en varias líneas...
+    # May crass due to incorrect file formatting
     states = np.zeros((4, 4))
-    #fidelity_track = np.zeros(shape=(10, 5, 4, 4))
 
     if version == 0:
         with open(filepath) as file:
