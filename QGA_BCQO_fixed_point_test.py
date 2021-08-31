@@ -4,12 +4,12 @@ import scipy.linalg as linalg
 import time
 import pandas as pd
 from functools import partial
-from QGA_QF_quantum_channels import *
-import QGA_QF_performance_report as pr
+from QGA_BCQO_quantum_channels import *
+import QGA_performance_report as pr
 import os
 
 
-def get_fixed_point_stats(save_dir='Fixed_points_run_02'):
+def get_fixed_point_stats(save_dir):
     number_of_eigenvectors_crossover = []
     eigval2_crossover = []
     correct_density_matrix_crossover = []
@@ -129,11 +129,9 @@ def get_fixed_point_stats(save_dir='Fixed_points_run_02'):
     return df
 
 
-def get_fixed_points():
+def get_fixed_points(dp_root='QGA_BCQO_run_01/QGA_QF_test_'):
     n = 4
     cl = 2
-    bigdir = 'QGA_QF_run_02'
-    dp_root = bigdir + '/QGA_QF_test_'
 
     save_dir = 'Fixed_points_run_02'
 
@@ -273,5 +271,7 @@ def get_fixed_points():
 
 
 if __name__ == '__main__':
-    stats_df = get_fixed_point_stats()
+    run_num = 1
+    save_dir = 'Fixed_points_BCQO_run_{:d}'.format(run_num)
+    stats_df = get_fixed_point_stats(save_dir)
     print(stats_df)
