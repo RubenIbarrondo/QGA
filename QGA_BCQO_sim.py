@@ -4,11 +4,11 @@
     crossover, and semi-sorted to implement selection. This version allows a quantum fitness criteria. Which is
     a fitness criteria defined on a basis which is not known beforehand, although an oracle is needed.
     This GA model is only valid when the fitness can be evaluated by pairs.
+    This version implements the cloning subroutine using the Biomimetic Cloning of Quantum Observables (BCQO).
 .. moduleauthor::  Ruben Ibarrondo (rubenibarrondo@gmail.com)
 """
 import os
 import numpy as np
-import math
 import quantum_mats as qm
 from copy import deepcopy
 from time import time
@@ -20,8 +20,8 @@ np.set_printoptions(threshold=np.inf)
 #       QUANTUM GENETIC
 #          ALGORITHM
 #              -
-#       ALLOWING QUANTUM
-#       FITNESS CRITERIA
+#        Cloning with
+#            BCQO
 #
 # -----------------------------
 
@@ -126,15 +126,9 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
             raise ValueError('If population is a quantum_matrix.rho object n and cl are required.')
         a = n//2
         ancillas = [ia for ia in range(n*cl, n*cl+a)]
-
-        if not init_population.dense:
-            rho_pop = qm.rho([], [], [], (init_population.shape[0] * 2**a, init_population.shape[1] * 2**a))
-            for i, j in init_population.store.keys():
-                rho_pop.set(i * 2**a, j * 2**a, init_population.get(i, j))
-        else:
-            ancillas_initial_state = np.zeros((2 ** a, 2 ** a))
-            ancillas_initial_state[0, 0] = 1
-            rho_pop = qm.rho(np.kron(init_population.get_matrix(), ancillas_initial_state), dense=True)
+        ancillas_initial_state = np.zeros((2 ** a, 2 ** a))
+        ancillas_initial_state[0, 0] = 1
+        rho_pop = qm.rho(np.kron(init_population.get_matrix(), ancillas_initial_state), dense=True)
     else:
         population = deepcopy(init_population)
         if n != len(population) or cl != len(population[0]):
@@ -213,8 +207,8 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
                               n * cl + a).get_matrix()
             sort_arr[stage] = sort_arr[stage].dot(cs).dot(orac)
     sort0, sort1 = sort_arr
-    mat_sort0 = sort0  # .get_matrix()
-    mat_sort1 = sort1  # .get_matrix()
+    mat_sort0 = sort0
+    mat_sort1 = sort1
 
     # Build mutation arrays
     if type(mutation_unitary) == list or type(pm) == list:
@@ -269,7 +263,6 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
         lower_rot = None  # Not implemented
 
     for generation in range(generation_number):
-        #print("%d/%d" % (generation + 1, generation_number))
         if track_fidelity:
             for reg in range(n):
                 reg_state = rho_pop.partial_trace(list(range(reg * cl, (reg + 1) * cl)))
@@ -295,23 +288,16 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
         for stage in range(0, n):
             sort = [sort0, sort1][stage % 2]
             mat_sort = [mat_sort0, mat_sort1][stage % 2]
-            if not rho_pop.dense:
-                rho_pop = sort.dot(rho_pop).dot(qm.Transpose(sort))
-            else:
-                rho_pop = qm.rho(mat_sort.dot(rho_pop.get_matrix()).dot(np.transpose(mat_sort).conjugate()), dense=True)
+            rho_pop = qm.rho(mat_sort.dot(rho_pop.get_matrix()).dot(np.transpose(mat_sort).conjugate()), dense=True)
 
             if projection_method != 'ptrace':
                 for ai in ancillas:
                     rho_pop.projection_controlled_rotation(ai, 1, qm.rho([1, 1], [0, 1], [1, 0], (2, 2)),
                                                            pre_projection_unitary, projection_method)
             else:
-                if not rho_pop.dense:
-                    rho_pop = rho_pop.partial_trace(list(range(n * cl)))
-                    rho_pop = qm.KronExpand(1, rho_pop, 2 ** a)
-                else:
-                    rho_pop = rho_pop.partial_trace(list(range(n * cl)))
-                    rho_pop = qm.rho(np.kron(rho_pop.get_matrix(),
-                                             qm.rho([1], [0], [0], (2 ** a, 2 ** a)).get_matrix()), dense=True)
+                rho_pop = rho_pop.partial_trace(list(range(n * cl)))
+                rho_pop = qm.rho(np.kron(rho_pop.get_matrix(),
+                                         qm.rho([1], [0], [0], (2 ** a, 2 ** a)).get_matrix()), dense=True)
 
         if track_fidelity:
             for reg in range(n):
@@ -335,21 +321,16 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
                 rho_pop.projection_controlled_rotation(q, 1, qm.rho([1, 1], [0, 1], [1, 0], (2, 2)),
                                                        pre_projection_unitary, projection_method)
         else:
-            if not rho_pop.dense:
-                rho_pop = lower_rot.dot(rho_pop).dot(np.transpose(np.conjugate(lower_rot)))
-                rho_pop = rho_pop.partial_trace(list(range(n//2 * cl)))
-                rho_pop = qm.KronExpand(1, rho_pop, 2 ** (n*cl - n//2 * cl + a))
-            else:
-                if type(pre_projection_unitary) != str:
-                    rho_pop = qm.rho(lower_rot_mat.dot(rho_pop.get_matrix()).dot(np.transpose(np.conjugate(lower_rot_mat))), dense=True)
-                elif pre_projection_unitary != "I":
-                    raise Exception("Only \"I\" pre_projection_unitary is supported with type str")
+            if type(pre_projection_unitary) != str:
+                rho_pop = qm.rho(lower_rot_mat.dot(rho_pop.get_matrix()).dot(np.transpose(np.conjugate(lower_rot_mat))), dense=True)
+            elif pre_projection_unitary != "I":
+                raise Exception("Only \"I\" pre_projection_unitary is supported with type str")
 
-                rho_pop = rho_pop.partial_trace(list(range(n//2 * cl)))
-                rho_pop = qm.rho(np.kron(rho_pop.get_matrix(),
-                                         qm.rho([1], [0], [0],
-                                                (2 ** (n*cl - n//2 * cl + a),
-                                                 2 ** (n*cl - n//2 * cl + a))).get_matrix()), dense=True)
+            rho_pop = rho_pop.partial_trace(list(range(n//2 * cl)))
+            rho_pop = qm.rho(np.kron(rho_pop.get_matrix(),
+                                     qm.rho([1], [0], [0],
+                                            (2 ** (n*cl - n//2 * cl + a),
+                                             2 ** (n*cl - n//2 * cl + a))).get_matrix()), dense=True)
         if track_fidelity:
             for reg in range(n):
                 reg_state = rho_pop.partial_trace(list(range(reg * cl, (reg + 1) * cl)))
@@ -367,12 +348,8 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
             print(file=store)
 
         # 4 - Crossover to fill
-        if not rho_pop.dense:
-            rho_pop = clone.dot(rho_pop).dot(qm.Transpose(clone))
-            rho_pop = cross.dot(rho_pop).dot(qm.Transpose(cross))
-        else:
-            rho_pop = qm.rho(mat_clone.dot(rho_pop.get_matrix()).dot(np.transpose(mat_clone)), dense=True)
-            rho_pop = qm.rho(mat_cross.dot(rho_pop.get_matrix()).dot(np.transpose(mat_cross)), dense=True)
+        rho_pop = qm.rho(mat_clone.dot(rho_pop.get_matrix()).dot(np.transpose(mat_clone)), dense=True)
+        rho_pop = qm.rho(mat_cross.dot(rho_pop.get_matrix()).dot(np.transpose(mat_cross)), dense=True)
 
         if track_fidelity:
             for reg in range(n):
@@ -391,53 +368,14 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
             print(file=store)
 
         # 5 - mutate with probability pm
-        if mutation_pattern is None:
-            if not use_mutation_unitary_set:
-                for c in range(n*cl):
-                    r = np.random.random()
-                    if r < pm:
-                        if mutation_unitary not in ["r", "R"]:
-                            if not rho_pop.dense:
-                                rho_pop = mut_arr[c].dot(rho_pop).dot(mut_arr[c])
-                            else:
-                                rho_pop = qm.rho(mat_mut_arr[c].dot(rho_pop.get_matrix().dot(np.transpose(mat_mut_arr[c]).conjugate())), dense=True)
-                        else:
-                            mu = special_ortho_group.rvs(2)
-                            mut_mat = np.kron(np.kron(np.identity(2 ** c), mu),
-                                              np.identity(2 ** (n * cl - c - 1 + a)))
-                            if not rho_pop.dense:
-                                rho_pop = qm.rho(mut_mat, dense=True).dot(rho_pop).dot(qm.rho(np.transpose(mut_mat).conjugate(), dense=True))
-                            else:
-                                rho_pop = qm.rho(mut_mat.dot(rho_pop.get_matrix().dot(np.transpose(mut_mat).conjugate())), dense=True)
-            else:
-                for c in range(n * cl):
-                    r = np.random.random()
-                    if r < pm_sum:
-                        mu = mutation_unitary[np.random.choice(range(len(pm)), p=pm_norm)]
-                        mut_mat = np.kron(np.kron(np.identity(2 ** c), mu),
-                                          np.identity(2 ** (n * cl - c - 1 + a)))
-                        if not rho_pop.dense:
-                            rho_pop = qm.rho(mut_mat, dense=True).dot(rho_pop).dot(
-                                qm.rho(np.transpose(mut_mat).conjugate(), dense=True))
-                        else:
-                            rho_pop = qm.rho(mut_mat.dot(rho_pop.get_matrix().dot(np.transpose(mut_mat).conjugate())),
-                                             dense=True)
-
-        else:
-            for c in mutation_pattern[generation-1]:
-                if mutation_unitary not in ["r", "R"]:
-                    if not rho_pop.dense:
-                        rho_pop = mut_arr[c].dot(rho_pop).dot(mut_arr[c])
-                    else:
-                        rho_pop = qm.rho(mat_mut_arr[c].dot(rho_pop.get_matrix().dot(mat_mut_arr[c])), dense=True)
-                else:
-                    mu = special_ortho_group.rvs(2)
-                    mut_mat = np.kron(np.kron(np.identity(2 ** c), mu),
-                                      np.identity(2 ** (n * cl - c - 1 + a)))
-                    if not rho_pop.dense:
-                        rho_pop = qm.rho(mut_mat, dense=True).dot(rho_pop).dot(qm.rho(np.transpose(mut_mat).conjugate(), dense=True))
-                    else:
-                        rho_pop = qm.rho(mut_mat.dot(rho_pop.get_matrix().dot(np.transpose(mut_mat).conjugate())), dense=True)
+        for c in range(n * cl):
+            r = np.random.random()
+            if r < pm_sum:
+                mu = mutation_unitary[np.random.choice(range(len(pm)), p=pm_norm)]
+                mut_mat = np.kron(np.kron(np.identity(2 ** c), mu),
+                                  np.identity(2 ** (n * cl - c - 1 + a)))
+                rho_pop = qm.rho(mut_mat.dot(rho_pop.get_matrix().dot(np.transpose(mut_mat).conjugate())),
+                                 dense=True)
 
         if track_fidelity:
             for reg in range(n):
@@ -476,8 +414,10 @@ def qga_qf_test(fitness_states, samples, dirpath):
     n = 4
     cl = 2
     pm = [1 / n / cl / 3] * 3
-    ppu = "I"  # "uudag"
-    mu = [np.array([[0, 1], [1, 0]]), np.array([[0, -1j], [1j, 0]]), np.array([[1, 0], [0, -1]])]
+    ppu = "I"
+    mu = [np.array([[0, 1], [1, 0]]),
+          np.array([[0, -1j], [1j, 0]]),
+          np.array([[1, 0], [0, -1]])]
     new_dirpath = dirpath
 
     i = 1
@@ -505,8 +445,6 @@ def qga_qf_test(fitness_states, samples, dirpath):
     criteria = lambda x, y: sum(int(xi) * 2 ** (len(x) - i - 1) for i, xi in enumerate(x)) > sum(
         int(yi) * 2 ** (len(y) - i - 1) for i, yi in enumerate(y))
     tf = fitness_states
-    if "uudag" in ppu:
-        ppu = np.transpose(uu).conjugate()
 
     with open(dirpath+'/0-Notes', 'w') as notes:
         notes.write(dirpath + "\n-" * 32 + "\n" +
@@ -527,7 +465,7 @@ def qga_qf_test(fitness_states, samples, dirpath):
         notes.write(repr(mu))
         notes.write("\n")
 
-    for trial in range(0, samples):
+    for trial in range(samples):
         print("trial ", trial, end=' ')
         t1 = time()
 
@@ -537,7 +475,7 @@ def qga_qf_test(fitness_states, samples, dirpath):
                                                   init_population=rho_population, n=n, cl=cl,
                                                   generation_number=g, pm=pm, mutation_unitary=mu,
                                                   projection_method="ptrace", pre_projection_unitary=ppu,
-                                                  store_path=None,  # dirpath+'/QGA_{:03d}'.format(trial),
+                                                  store_path=None,
                                                   track_fidelity=tf)
         print(time() - t1)
 
@@ -552,14 +490,13 @@ def qga_qf_test(fitness_states, samples, dirpath):
 
 
 if __name__ == '__main__':
-    #from scipy.stats import special_ortho_group
-    import QGA_QF_performance_report as pr
+    from scipy.stats import special_ortho_group
     state_case_number = 600
     samples = 50
-    dirpath = 'QGA_QF_run_08/QGA_QF_test_'
-    issourcedir = True
+    run_num = 9
+    dirpath = 'QGA_QF_run_{:02d}/QGA_BCQO_test_'.format(run_num)
 
-    for state_case in range(2, state_case_number):
+    for state_case in range(state_case_number):
         print("State case: %d" % state_case)
         if state_case == 0:
             tf = [np.array([1, 0, 0, 0]),
@@ -573,20 +510,7 @@ if __name__ == '__main__':
                   np.full(4, 1 / 2) * np.array([1, -1, -1, 1])]
         else:
             # DOES NOT GENERATE COMPLEX NUMBERS!!!
-            #ortho_group = special_ortho_group.rvs(4)
-            #tf = [ortho_group[:, i] for i in range(4)]
-            dp_root = 'QGA_QF_run_02/QGA_QF_test_'
-            if not os.path.exists(dp_root + ("%03d" % (state_case + 1))):
-                issourcedir = False
-            else:
-                directory = dp_root + ("%03d" % (state_case + 1))
+            ortho_group = special_ortho_group.rvs(4)
+            tf = [ortho_group[:, i] for i in range(4)]
 
-                states, tracked_fidelity = pr.parse_fidelity_track(
-                    directory + "/fidelity_tracks_000")
-                tf = [states[i, :] for i in range(states.shape[0])]
-                issourcedir = True
-
-        if issourcedir:
-            qga_qf_test(fitness_states=tf, samples=samples, dirpath=dirpath+("%03d" % (state_case + 1)))
-        else:
-            print("Dirpath does not exist: ", dp_root + ("%03d" % (state_case + 1)))
+        qga_qf_test(fitness_states=tf, samples=samples, dirpath=dirpath+("%03d" % (state_case + 1)))
