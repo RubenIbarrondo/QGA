@@ -224,6 +224,7 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
         pm_sum = sum(pm)
         pm_norm = [pmi / pm_sum for pmi in pm]
     else:
+        pm_sum = pm
         use_mutation_unitary_set = False
 
     if not use_mutation_unitary_set:
@@ -234,7 +235,7 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
                 elif mutation_unitary in ["h", "H"]:
                     mutation_unitary = qm.rho(np.array([1, 1, 1, -1])/np.sqrt(2), [0, 0, 1, 1], [0,  1, 0, 1], (2, 2))
                 elif mutation_unitary in ["i", "I"]:
-                    mutation_unitary = qm.Identity(2).get_matrix()
+                    mutation_unitary = qm.Identity(2)
                 else:
                     raise ValueError("mutation_unitary = \"%s\" not recognised." % mutation_unitary)
             else:

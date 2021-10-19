@@ -226,6 +226,7 @@ def quantum_genetic_algorithm(fitness_criteria, fitness_basis=None,
         pm_sum = sum(pm)
         pm_norm = [pmi / pm_sum for pmi in pm]
     else:
+        pm_sum = pm
         use_mutation_unitary_set = False
 
     if not use_mutation_unitary_set:
