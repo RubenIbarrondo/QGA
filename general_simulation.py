@@ -15,7 +15,8 @@ def criteria(x, y):
         int(yi) * 2 ** (len(y) - i - 1) for i, yi in enumerate(y))
 
 
-if __name__ == '__main__':
+def standard_simulation():
+    """Skip problem cases that are already present, although they may not have exactly the same conditions."""
     c = 2
     n = 4
     pm = [1 / n / c / 3 / 3] * 3
@@ -105,3 +106,120 @@ if __name__ == '__main__':
             np.save(big_dirs[3] + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j), np.array(ft, dtype=np.complex64))
             np.save(big_dirs[3] + "/" + pathname + '/final_population_{:03d}'.format(j), np.array(rho_final.partial_trace(list(range(n * c))).get_matrix(), dtype=np.complex64))
         print(pathname, "time: ", time() - t1)
+
+
+def extend_simulation():
+    """Skip problem cases that are already present, although they may not have exactly the same conditions."""
+    c = 2
+    n = 4
+    pm = [1 / n / c / 3 / 3] * 3
+    mu = [np.array([[0, 1], [1, 0]]),
+          np.array([[0, -1j], [1j, 0]]),
+          np.array([[1, 0], [0, -1]])]
+
+    number_of_Hps = 200
+    number_of_initial_populations = 10
+    number_of_generations = {"BCQO_nm": 10,
+                             "BCQO_wm": 10,
+                             "UQCM_nm": 10,
+                             "UQCM_wm": 10}
+
+    big_dirs = ("out_BCQO_nm", "out_BCQO_wm", "out_UQCM_nm", "out_UQCM_wm", "out_inits", "out_Ups")
+
+    for dirpath in big_dirs:
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+
+    t1 = time()
+    for i in range(number_of_Hps):
+        pathname = "problem_%d" % i
+
+        if os.path.exists(big_dirs[-1] + "/" + pathname + ".npy"):
+            up = np.load(big_dirs[-1] + "/" + pathname + ".npy")
+
+            for dirpath in big_dirs[:-1]:
+                if not os.path.exists(dirpath + "/" + pathname):
+                    raise Exception(dirpath + "/" + pathname + " does not exist.")
+                for trial in range(number_of_initial_populations):
+                    if not os.path.isfile(dirpath + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j) + ".npy"):
+                        raise Exception(dirpath + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j) + ".npy" + " does not exist.")
+                    if not os.path.isfile(dirpath + "/" + pathname + '/final_population_{:03d}'.format(j) + ".npy"):
+                        raise Exception(dirpath + "/" + pathname + '/final_population_{:03d}'.format(j) + ".npy" + " does not exist.")
+        else:
+            print(big_dirs[-1] + "/" + pathname, "does not exist, the index will be skipped.")
+            continue
+
+        for j in range(number_of_initial_populations):
+
+            # BCQO nm
+            rho_population_mat = np.load(big_dirs[0] + "/" + pathname + '/final_population_{:03d}'.format(j) + ".npy")
+            rho_population = qm.rho.gen_rho_from_matrix(rho_population_mat)
+            ft_prev = np.load(big_dirs[0] + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j) + ".npy")
+            g_prev = ft_prev.shape[0]
+            if g_prev < number_of_generations["BCQO_nm"]:
+                rho_final, ft = bqga.quantum_genetic_algorithm(criteria, fitness_basis=up,
+                                                               init_population=rho_population, n=n, cl=c,
+                                                               generation_number=number_of_generations["BCQO_nm"]-g_prev,
+                                                               pm=0, mutation_unitary="I",
+                                                               projection_method="ptrace", store_path=None,
+                                                               track_fidelity=[up[:, i] for i in range(up.shape[0])])
+                # Save...
+                ft = np.vstack([ft_prev, ft])
+                np.save(big_dirs[0] + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j), np.array(ft, dtype=np.complex64))
+                np.save(big_dirs[0] + "/" + pathname + '/final_population_{:03d}'.format(j), np.array(rho_final.partial_trace(list(range(n * c))).get_matrix(), dtype=np.complex64))
+
+            # BCQO wm
+            rho_population_mat = np.load(big_dirs[1] + "/" + pathname + '/final_population_{:03d}'.format(j) + ".npy")
+            rho_population = qm.rho.gen_rho_from_matrix(rho_population_mat)
+            ft_prev = np.load(big_dirs[1] + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j) + ".npy")
+            g_prev = ft_prev.shape[0]
+            if g_prev < number_of_generations["BCQO_wm"]:
+                rho_final, ft = bqga.quantum_genetic_algorithm(criteria, fitness_basis=up,
+                                                               init_population=rho_population, n=n, cl=c,
+                                                               generation_number=number_of_generations["BCQO_wm"]-g_prev,
+                                                               pm=pm, mutation_unitary=mu,
+                                                               projection_method="ptrace", store_path=None,
+                                                               track_fidelity=[up[:, i] for i in range(up.shape[0])])
+                # Save...
+                ft = np.vstack([ft_prev, ft])
+                np.save(big_dirs[1] + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j), np.array(ft, dtype=np.complex64))
+                np.save(big_dirs[1] + "/" + pathname + '/final_population_{:03d}'.format(j), np.array(rho_final.partial_trace(list(range(n * c))).get_matrix(), dtype=np.complex64))
+
+            # UQCM nm
+            rho_population_mat = np.load(big_dirs[2] + "/" + pathname + '/final_population_{:03d}'.format(j) + ".npy")
+            rho_population = qm.rho.gen_rho_from_matrix(rho_population_mat)
+            ft_prev = np.load(big_dirs[2] + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j) + ".npy")
+            g_prev = ft_prev.shape[0]
+            if g_prev < number_of_generations["UQCM_nm"]:
+                rho_final, ft = uqga.quantum_genetic_algorithm(criteria, fitness_basis=up,
+                                                               init_population=rho_population, n=n, cl=c,
+                                                               generation_number=number_of_generations["UQCM_nm"]-g_prev,
+                                                               pm=0, mutation_unitary="I",
+                                                               projection_method="ptrace", store_path=None,
+                                                               track_fidelity=[up[:, i] for i in range(up.shape[0])])
+                # Save...
+                ft = np.vstack([ft_prev, ft])
+                np.save(big_dirs[2] + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j), np.array(ft, dtype=np.complex64))
+                np.save(big_dirs[2] + "/" + pathname + '/final_population_{:03d}'.format(j), np.array(rho_final.partial_trace(list(range(n * c))).get_matrix(), dtype=np.complex64))
+
+            # UQCM wm
+            rho_population_mat = np.load(big_dirs[3] + "/" + pathname + '/final_population_{:03d}'.format(j) + ".npy")
+            rho_population = qm.rho.gen_rho_from_matrix(rho_population_mat)
+            ft_prev = np.load(big_dirs[3] + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j) + ".npy")
+            g_prev = ft_prev.shape[0]
+            if g_prev < number_of_generations["UQCM_wm"]:
+                rho_final, ft = uqga.quantum_genetic_algorithm(criteria, fitness_basis=up,
+                                                               init_population=rho_population, n=n, cl=c,
+                                                               generation_number=number_of_generations["UQCM_wm"]-g_prev,
+                                                               pm=pm, mutation_unitary=mu,
+                                                               projection_method="ptrace", store_path=None,
+                                                               track_fidelity=[up[:, i] for i in range(up.shape[0])])
+                # Save...
+                ft = np.vstack([ft_prev, ft])
+                np.save(big_dirs[3] + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j), np.array(ft, dtype=np.complex64))
+                np.save(big_dirs[3] + "/" + pathname + '/final_population_{:03d}'.format(j), np.array(rho_final.partial_trace(list(range(n * c))).get_matrix(), dtype=np.complex64))
+        print(pathname, "time: ", time() - t1)
+
+
+if __name__ == '__main__':
+    extend_simulation()
