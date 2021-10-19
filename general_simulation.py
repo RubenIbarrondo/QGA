@@ -128,7 +128,7 @@ def extend_simulation():
 
     for dirpath in big_dirs:
         if not os.path.exists(dirpath):
-            os.makedirs(dirpath)
+            raise Exception(dirpath + " does not exist.")
 
     t1 = time()
     for i in range(number_of_Hps):
