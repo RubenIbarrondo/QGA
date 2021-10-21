@@ -137,10 +137,10 @@ def extend_simulation():
         if os.path.exists(big_dirs[-1] + "/" + pathname + ".npy"):
             up = np.load(big_dirs[-1] + "/" + pathname + ".npy")
 
-            for dirpath in big_dirs[:-1]:
+            for dirpath in big_dirs[:4]:
                 if not os.path.exists(dirpath + "/" + pathname):
                     raise Exception(dirpath + "/" + pathname + " does not exist.")
-                for trial in range(number_of_initial_populations):
+                for j in range(number_of_initial_populations):
                     if not os.path.isfile(dirpath + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j) + ".npy"):
                         raise Exception(dirpath + "/" + pathname + '/fidelity_tracks_{:03d}'.format(j) + ".npy" + " does not exist.")
                     if not os.path.isfile(dirpath + "/" + pathname + '/final_population_{:03d}'.format(j) + ".npy"):

@@ -246,6 +246,7 @@ def get_fixed_points_after_sort(u=None, show_progress=True):
     prev = start
     for Ekj in Euqcm_arr:
         for Es in Es_arr:
+
             k += 1
             Ek = np.array(Es @ mat_cross @ Ekj, dtype=np.float32)
             Ek_arr.append(Ek)
@@ -287,8 +288,12 @@ if __name__ == '__main__':
     cl = 2
     pm = 0
 
-    u = np.identity(4)
-    w, A_arr = get_fixed_points_after_sort(u)
+    #u = np.identity(4)
+    u = np.array([[ 0.88702694, -0.33347056,  0.04564417, -0.31606518],
+       [-0.01248731,  0.10861067,  0.99398727, -0.00609153],
+       [-0.26261229,  0.19293821, -0.03017197, -0.94493348],
+       [-0.37955507, -0.9163929 ,  0.09484502, -0.08465467]])
+    w, A_arr = get_fixed_points_after_sort(u, show_progress=True)
 
     print("\n\nDENSITY MATRICES WITH w=1\n")
     fixed_point_index = 0
