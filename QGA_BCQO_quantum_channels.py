@@ -153,7 +153,7 @@ def get_fixed_points_after_sort(u=None, show_progress=True):
     U = np.kron(u, u)
     U = np.kron(U, U)
 
-    start = time.time()
+    #start = time.time()
     sort_unitary = qm.Identity(2 ** (n * cl + a))
     for stage in range(n):
         for reg in range(0, n - 1, 2):
@@ -234,22 +234,24 @@ def get_fixed_points_after_sort(u=None, show_progress=True):
 
     # DEFINE Ek (The operators describing the process though a generation)
 
-    E = scipy.sparse.csr_matrix((mat_clone.shape[0] ** 2, mat_clone.shape[1] ** 2), dtype=np.float32)
+    E = scipy.sparse.csr_matrix((mat_clone.shape[0] ** 2, mat_clone.shape[1] ** 2))#, dtype=np.float32)
     i = 0
     k = 0
     Ek_arr = []
+    start = time.time()
     for Es in Es_arr:
         for Er in Er_arr:
             k += 1
-            Ek = np.array(Es @ mat_cross @ mat_clone @ Er, dtype=np.float32)
+            Ek = np.array(Es @ mat_cross @ mat_clone @ Er)#, dtype=np.float32)
             Ek_arr.append(Ek)
             E += scipy.sparse.kron(Ek.conjugate(), Ek)
         i += 1
         if show_progress:
-            print("Competition: {:.2f} %".format(i / len(Es_arr) * 100))
+            t = time.time() - start
+            print("Competition: {:.2f} %, \t Time: {:.2f} min / {:.2f} min".format(i / len(Es_arr) * 100, t/60, t / (i / len(Es_arr))/60))
     end = time.time()
     if show_progress:
-        print("Time required: ", end - start)
+        print("Time required: ", (end - start)/60)
         print()
 
         print("\n\nEIGENVALUES AND EIGENVECTORS\n OF THE QUANTUM CHANEL\n\n")
@@ -278,45 +280,48 @@ if __name__ == '__main__':
     pm = 0
 
     #u = np.identity(4)
-    u = np.array([[ 0.88702694, -0.33347056,  0.04564417, -0.31606518],
-       [-0.01248731,  0.10861067,  0.99398727, -0.00609153],
-       [-0.26261229,  0.19293821, -0.03017197, -0.94493348],
-       [-0.37955507, -0.9163929 ,  0.09484502, -0.08465467]])
-    A_arr = get_fixed_points_after_sort(u)
+    for problem in range(46, 200):
+        start = time.time()
+        u = np.load('out_Ups/problem_{:d}.npy'.format(problem))
+        w, A_arr = get_fixed_points_after_sort(u, show_progress=False)
+        np.save("fp_BCQO_nm/eigenvalues_problem_{:d}".format(problem), w)
 
-    print("\n\nDENSITY MATRICES WITH w=1\n")
-    fixed_point_index = 0
-    for A in A_arr:
-        fixed_point_index += 1
-
-        pi, vi = linalg.eig(A)
-        print("Eigenvalues of the density matrix:")
-        print("All real (eps=1e-6)? ", np.all(abs(pi-pi.real) < 1e-6))
-        print("All positive (eps=1e-6)? ", np.all(pi.real > -1e-6))
-        print("All less than one (eps=1e-6)? ", np.all(pi.real < 1 + 1e-6))
         print()
-        print("Trace of the density matrix:")
-        print(A.trace())
-        print()
-        print("Diagonal terms of the density matrix:")
-        print("All real (eps=1e-6)? ", np.all(abs(np.diag(A) - np.diag(A).real) < 1e-6))
-        print("All positive (eps=1e-6)? ", np.all(np.diag(A).real > -1e-6))
-        print("All less than one (eps=1e-6)? ", np.all(np.diag(A).real < 1 + 1e-6))
-        print()
+        print("Problem: ", problem, "\t", (time.time()-start)/60)
+        print("\n\nDENSITY MATRICES WITH w=1\n")
+        fixed_point_index = 0
+        for i, A in enumerate(A_arr):
+            fixed_point_index += 1
+            np.save("fp_BCQO_nm/fp_problem_{:d}_{:d}".format(problem, i), A)
+            pi, vi = linalg.eig(A)
 
-        rho_pop = qm.rho(A, dense=True)
-        print("Fidelity of each state:\n")
-        track_fidelity = [u[:, i] for i in range(u.shape[1])]
-
-        fidelity_array = np.zeros((n, len(track_fidelity)))
-
-        for reg in range(n):
-            reg_state = rho_pop.partial_trace(list(range(reg * cl, (reg + 1) * cl)))
-            print("reg {:d}    ".format(reg), end="")
-            for i, state in enumerate(track_fidelity):
-                fidelity_array[reg, i] = reg_state.fidelity(state)
-                print("{:5.3f}".format(fidelity_array[reg, i]), end="\t")
+            print("Eigenvalues of the density matrix:")
+            print("All real (eps=1e-6)? ", np.all(abs(pi-pi.real) < 1e-6))
+            print("All positive (eps=1e-6)? ", np.all(pi.real > -1e-6))
+            print("All less than one (eps=1e-6)? ", np.all(pi.real < 1 + 1e-6))
             print()
+            print("Trace of the density matrix:")
+            print(A.trace())
+            print()
+            print("Diagonal terms of the density matrix:")
+            print("All real (eps=1e-6)? ", np.all(abs(np.diag(A) - np.diag(A).real) < 1e-6))
+            print("All positive (eps=1e-6)? ", np.all(np.diag(A).real > -1e-6))
+            print("All less than one (eps=1e-6)? ", np.all(np.diag(A).real < 1 + 1e-6))
+            print()
+
+            rho_pop = qm.rho(A, dense=True)
+            print("Fidelity of each state:\n")
+            track_fidelity = [u[:, i] for i in range(u.shape[1])]
+
+            fidelity_array = np.zeros((n, len(track_fidelity)))
+
+            for reg in range(n):
+                reg_state = rho_pop.partial_trace(list(range(reg * cl, (reg + 1) * cl)))
+                print("reg {:d}    ".format(reg), end="")
+                for i, state in enumerate(track_fidelity):
+                    fidelity_array[reg, i] = reg_state.fidelity(state)
+                    print("{:5.3f}".format(fidelity_array[reg, i]), end="\t")
+                print()
 
 
 
