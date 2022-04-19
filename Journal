@@ -1,0 +1,9 @@
+
+             JOURNAL
+--------------------------------
+
+ - Notes 13 Apr 2022
+    * Creation of this file to keep track of tests and the creation of new files and their purpose.
+    * My original idea is to run the same Hamiltonians using other mutaiton methods, these methods can only involve
+    single qubit mutations due to the original programs. However, single qubit gates may imply too little change.
+    * My second idea is to vary the mutation probability and see its impact in previous results.
