@@ -15,7 +15,7 @@ def criteria(x, y):
         int(yi) * 2 ** (len(y) - i - 1) for i, yi in enumerate(y))
 
 
-def pm_sweep_from_previous(pm_rate_min, pm_rate_max, pm_number, number_of_problems):
+def pm_sweep_from_previous(pm_rate_min, pm_rate_max, pm_number, initial_number_of_problems, final_number_of_problems):
     """The idea is to try the SAME Hp's and Initial Pops but performing a value
     sweep in the mutation probability pm."""
     c = 2
@@ -35,7 +35,7 @@ def pm_sweep_from_previous(pm_rate_min, pm_rate_max, pm_number, number_of_proble
             raise Exception(dirpath + " does not exist.")
 
     t1 = time()
-    for i in range(number_of_problems):
+    for i in range(initial_number_of_problems, final_number_of_problems):
         pathname = "problem_%d" % i
 
         if os.path.exists(big_dirs[-1] + "/" + pathname + ".npy"):
@@ -85,4 +85,8 @@ def pm_sweep_from_previous(pm_rate_min, pm_rate_max, pm_number, number_of_proble
 
 
 if __name__ == '__main__':
-    pm_sweep_from_previous(pm_rate_min=.1, pm_rate_max=3.0, pm_number=10, number_of_problems=25)
+    pm_sweep_from_previous(pm_rate_min=.1,
+                           pm_rate_max=3.0,
+                           pm_number=10,
+                           initial_number_of_problems=35,
+                           final_number_of_problems=50)

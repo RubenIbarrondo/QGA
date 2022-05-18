@@ -7,3 +7,41 @@
     * My original idea is to run the same Hamiltonians using other mutaiton methods, these methods can only involve
     single qubit mutations due to the original programs. However, single qubit gates may imply too little change.
     * My second idea is to vary the mutation probability and see its impact in previous results.
+
+ - Notes 25 Apr 2022
+    * I have simulated the QGA with BCQO and UQCM for 35 different problem cases, with the same initial populations.
+    Apparently, the QGA fidelity of the UQCM decreases linearly with the increment of the mutation probability, whereas
+    for the BCQO this is constant but the variance (the range of possible QGA fidelities for different problem cases)
+    decreases linearly.
+
+ - Notes 18 May 2022
+    * People keep on asking about a comparison with a classical counterpart, or a more standardized benchmarking. Until
+    now, I have tried to explain that such a benchmarking is not feasible for any interesting case, mainly because for
+    small systems the solution can be found trivially with classical means (not even a GA is required), whereas for
+    bigger systems we cannot predict the behaviour of the quantum algorithm. However, maybe we should include a cautious
+    comparison to illustrate this fact while we work on further methods to estimate the behaviour of the QGA in bigger
+    systems. (This thoughts are a result of the rejection made by Quantum.)
+    * I propose two fixed benchmarking Hamiltonians:
+        Hc = diag(1,2,3,4) and
+        Hh2 = The two-level Hamiltonian of the Hydrogen molecule.
+    * Yesterday I came up with the following classical counterparts that we could study:
+
+        1. CGA_1: Individuals encoded as C^4 normalized vectors, representing the state of a c-qubit system. Selection is
+        made by computing their expected energy and preserving the best n/2. The cloning is perfectly performed. There
+        are two possibilities for the crossover:
+            (a) arithmetical mean,
+            (b) interchanging the elements of the column vector,
+            x(c) with a partial rotation towards the other individual (in an orthogonal direction? can it be defined?
+            I don't think this is a natural choice, if we take a rotation wrt an axis then by applying its square root
+            we reach the same vector for both childs),
+            x(d) any possible analogy to the quantum swap (I cannot figure it out).
+        Similarly, mutations can be performed differently:
+            i. adding infinitesimally small vectors,
+            ii. applying qubit rotations.
+
+        2. CGQ_2: Individuals codified in 2 bits, this can only be used for Hc. Crossover is performed by classical
+        duplication plus bit-swap and mutations by a bit-flip with small probability.
+
+        3. CGA_3: Using a quantum inspired genetic algorithm:
+            (a) Either the typical QIGA, which has no entanglement,
+            (b) or modifying it to admit entanglement.
