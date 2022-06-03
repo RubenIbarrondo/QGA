@@ -17,7 +17,7 @@ I = np.identity(2)
 
 # Define the fitness evaluating function
 def energy(individual, Hamiltonian):
-    return np.dot(individual.conjugate().transpose() , np.dot(Hamiltonian, individual))
+    return np.dot(individual.conjugate().transpose(), np.dot(Hamiltonian, individual))
 
 
 def get_eigenbasis(Hamiltonian):
@@ -49,7 +49,7 @@ def crossover_b(individual1, individual2):
 def mutation_i(individual, pm):
     child = np.copy(individual)
     r = np.random.random(child.shape)
-    sigma = 0.1 * (r <= pm)
+    sigma = 0.228 * (r <= pm)
     dr = np.random.normal(0, sigma, child.shape)
     child = child + dr
     child = child / np.linalg.norm(child)
@@ -84,6 +84,7 @@ def fidelity(eigenstate, individual):
 
 def CGA_1(Hamiltonian, int_population, n, cl, generation_number, pm,
           crossover_method, mutation_method):
+    """Real valued cGA."""
     assert (n % 4 == 0) and (cl % 2 == 0), "n must be divisible by 4, cl must be even."
     assert (int(np.round(np.log2(len(Hamiltonian)))) == cl), "concordance in the number of qubits"
     population = int_population
@@ -144,6 +145,7 @@ def bin2pop(population_bin):
 
 def CGA_2(Hamiltonian, int_population, n, cl, generation_number, pm,
           crossover_method, mutation_method):
+    """Binary cGA."""
     assert (n % 4 == 0) and (cl % 2 == 0), "n must be divisible by 4, cl must be even."
     assert (int(np.round(np.log2(len(Hamiltonian)))) == cl), "concordance in the number of qubits"
     assert np.sum(np.abs(Hamiltonian - np.diag(np.diag(Hamiltonian)))) < 1e-6, "The Hamiltonian must be diagonal for CGA_2"
@@ -199,6 +201,13 @@ def CGA_2(Hamiltonian, int_population, n, cl, generation_number, pm,
 
 def CGA_3(Hamiltonian, int_population, n, cl, generation_number, pm,
           crossover_method, mutation_method):
+    """Traditional QIGA.
+    References:
+        Han, K.-H.; Kim, J.-H. (2002). Quantum-Inspired Evolutionary Algorithm for a Class of Combinatorial Optimization. IEEE Transactions on Evolutionary Computation, 6 (6), 580–593. https://doi.org/10.1080/01496395.2017.1297456
+        Narayanan, A.; Moore, M. (1996). Quantum-inspired genetic algorithms. Proceedings of IEEE International Conference on Evolutionary Computation, 61–66. https://doi.org/10.1109/ICEC.1996.542334
+    ¿?¿?¿?
+    """
+
     raise NotImplementedError("QIGA is not yet supported.")
 
     assert (n % 4 == 0) and (cl % 2 == 0), "n must be divisible by 4, cl must be even."
@@ -247,6 +256,7 @@ def CGA_3(Hamiltonian, int_population, n, cl, generation_number, pm,
 
     return population, fidelity_track
 
+
 if __name__ == '__main__':
     import quantum_mats as qm
     import matplotlib.pyplot as plt
@@ -259,8 +269,9 @@ if __name__ == '__main__':
 
     generations = 10
     pm = 0.125
-    f = open('ref_hamiltonians')
+    f = open('ref_comparison/ref_hamiltonians')
     hdict = eval(f.readline())
+    f.close()
 
     fig, axs = plt.subplots(2, 2, figsize=[15, 6])
 
