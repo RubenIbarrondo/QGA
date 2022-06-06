@@ -79,7 +79,7 @@ def mutation_ii(individual, pm):
 
 
 def fidelity(eigenstate, individual):
-    return abs(np.dot(eigenstate.conjugate().transpose(), individual))
+    return abs(np.dot(eigenstate.conjugate().transpose(), individual))**2
 
 
 def CGA_1(Hamiltonian, int_population, n, cl, generation_number, pm,
