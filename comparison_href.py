@@ -13,7 +13,8 @@ import quantum_mats as qm
 import os
 import time
 
-def ref_comparison(H, number_of_initial_populations, save_path=None, show_figs=False):
+
+def ref_comparison(H, number_of_initial_populations, generations, save_path=None, show_figs=False):
     if show_figs:
         import matplotlib.pyplot as plt
         fig, axs = plt.subplots(2, 2, figsize=[15, 6])
@@ -35,7 +36,6 @@ def ref_comparison(H, number_of_initial_populations, save_path=None, show_figs=F
     # Define parameters
     n = 4
     cl = 2
-    generations = 10
     pm = 1 / n / cl
     criteria = lambda x, y: sum(int(xi) * 2 ** (len(x) - i - 1) for i, xi in enumerate(x)) > sum(
         int(yi) * 2 ** (len(y) - i - 1) for i, yi in enumerate(y))
@@ -185,6 +185,7 @@ def ref_comparison(H, number_of_initial_populations, save_path=None, show_figs=F
 
 if __name__ == '__main__':
     inits = 50
+    generations = 50
     path = "ref_comparison/"
     with open('ref_comparison/ref_hamiltonians') as f:
         hdict = eval(f.readline())
@@ -192,6 +193,6 @@ if __name__ == '__main__':
     Hh2 = hdict['Hh2']
 
     t1 = time.time()
-    ref_comparison(Hc, inits, save_path=path+'Hc', show_figs=False)
-    ref_comparison(Hh2, inits, save_path=path+'Hh2', show_figs=False)
+    ref_comparison(Hc, inits, generations, save_path=path+'Hc_ext', show_figs=False)
+    ref_comparison(Hh2, inits, generations, save_path=path+'Hh2_ext', show_figs=False)
     print(time.time() - t1)
