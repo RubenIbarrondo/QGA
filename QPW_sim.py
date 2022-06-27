@@ -501,16 +501,15 @@ def qpw_uqcm_test(fitness_states, samples, dirpath):
             file.write(repr(ft))
 
 
-def qpw_simulation(number_of_first_Hp, number_of_last_Hp):
+def qpw_simulation(c, number_of_first_Hp, number_of_last_Hp):
     """Skip problem cases that are already present, although they may not have exactly the same conditions."""
-    c = 2
     pm = 0
     mu = "I"
     n = 2
     number_of_initial_populations = 20
     number_of_generations = 20
 
-    big_dirs = ["out_QPW_uqcm", "out_QPW_inits", "out_QPW_ups"]
+    big_dirs = ["out_QPW_uqcm_"+str(c), "out_QPW_inits_"+str(c), "out_QPW_ups_"+str(c)]
 
     for dirpath in big_dirs:
         if not os.path.exists(dirpath):
@@ -560,5 +559,5 @@ def qpw_simulation(number_of_first_Hp, number_of_last_Hp):
 
 if __name__ == '__main__':
     t1 = time()
-    qpw_simulation(number_of_first_Hp=0, number_of_last_Hp=200)
+    qpw_simulation(c=4, number_of_first_Hp=0, number_of_last_Hp=20)
     print(time() - t1)

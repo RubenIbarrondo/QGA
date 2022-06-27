@@ -45,3 +45,9 @@
         3. CGA_3: Using a quantum inspired genetic algorithm:
             (a) Either the typical QIGA, which has no entanglement,
             (b) or modifying it to admit entanglement.
+
+ - Notes 24 Jun 2022
+    * I have realized about a huge mistake in one of the mutation subroutines. Instead of generating random complex
+    perturbations I generated only real perturbations. This implies an enormous reduction of the exploratory capacity
+    of the cGAs. Today, I have created the mutation_iii subroutine and I am testing whether it has a significative
+    impact in the performance. I will consider substituting mutation_i by this new function depending on the outcome.

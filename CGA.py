@@ -77,6 +77,15 @@ def mutation_ii(individual, pm):
     child = child / np.linalg.norm(child)
     return child
 
+def mutation_iii(individual, pm):
+    child = np.copy(individual)
+    r = np.random.random(child.shape)
+    sigma = 0.228 * (r <= pm)
+    dr = np.random.normal(0, sigma, child.shape)
+    dphi = np.random.random(child.shape) * 2 * np.pi
+    child = child + dr * np.exp(1j * dphi)
+    child = child / np.linalg.norm(child)
+    return child
 
 def fidelity(eigenstate, individual):
     return abs(np.dot(eigenstate.conjugate().transpose(), individual))**2

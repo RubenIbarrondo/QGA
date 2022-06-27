@@ -183,6 +183,63 @@ def ref_comparison(H, number_of_initial_populations, generations, save_path=None
         plt.show()
 
 
+def ref_comp_addga(H, ga, isquantum, init_path, save_path, generations, mutmeth=None, crossmeth=None):
+    """GA is either complex-vector CGA (isquantum=False) or a QGA (isquantum=True)"""
+    try:
+        os.mkdir(save_path)
+    except FileExistsError as fer:
+        raise fer
+
+    # Define parameters
+    n = 4
+    cl = 2
+    pm = 1 / n / cl
+    criteria = lambda x, y: sum(int(xi) * 2 ** (len(x) - i - 1) for i, xi in enumerate(x)) > sum(
+        int(yi) * 2 ** (len(y) - i - 1) for i, yi in enumerate(y))
+    ppu = "I"
+    mu = [np.array([[0, 1], [1, 0]]),
+          np.array([[0, -1j], [1j, 0]]),
+          np.array([[1, 0], [0, -1]])]
+    pm_arr = [1 / n / cl / 3] * 3
+
+    energies, eigenstates = get_eigenbasis(H)
+    uu = np.zeros((4, 4), dtype=complex)
+    for i, state in enumerate(eigenstates):
+        uu[:, i] = state
+    tf = eigenstates
+
+    init_pop_index = 0
+    while os.path.exists(init_path.format(init_pop_index)):
+        if isquantum:
+            init_pop_vec = np.load(init_path.format(init_pop_index))
+            init_pop = np.outer(init_pop_vec, init_pop_vec.conjugate())
+            init_pop = init_pop / np.trace(init_pop)
+        else:
+            init_pop = np.load(init_path.format(init_pop_index))
+
+        if isquantum:
+            pop, ft = ga(criteria, fitness_basis=uu,
+                         init_population=rho_population, n=n, cl=cl,
+                         generation_number=generations, pm=pm_arr, mutation_unitary=mu,
+                         projection_method="ptrace", pre_projection_unitary=ppu,
+                         store_path=None, track_fidelity=tf)
+        else:
+            pop, ft = ga(H, init_pop, n, cl, generations, pm, crossmeth, mutmeth)
+
+        if isquantum:
+            np.save(save_path + '/fidelity_tracks_{:03d}'.format(init_pop_index),
+                    np.array(ft, dtype=np.complex64))
+            np.save(save_path + '/final_population_{:03d}'.format(init_pop_index),
+                    np.array(pop.partial_trace(list(range(n * cl))).get_matrix(), dtype=np.complex64))
+        else:
+            np.save(save_path + '/fidelity_tracks_{:03d}'.format(init_pop_index),
+                    np.array(ft, dtype=np.complex64))
+            np.save(save_path + '/final_pop_{:03d}'.format(init_pop_index),
+                    np.array(pop, dtype=np.complex64))
+
+        init_pop_index += 1
+
+
 if __name__ == '__main__':
     inits = 50
     generations = 50
@@ -193,6 +250,18 @@ if __name__ == '__main__':
     Hh2 = hdict['Hh2']
 
     t1 = time.time()
-    ref_comparison(Hc, inits, generations, save_path=path+'Hc_ext', show_figs=False)
-    ref_comparison(Hh2, inits, generations, save_path=path+'Hh2_ext', show_figs=False)
+    #ref_comparison(Hc, inits, generations, save_path=path+'Hc_ext', show_figs=False)
+    #ref_comparison(Hh2, inits, generations, save_path=path+'Hh2_ext', show_figs=False)
+    ref_comp_addga(Hc, CGA_1, False, 'ref_comparison/Hc_ext/cGA1_inits/initial_pop_{:03d}.npy',
+                   'ref_comparison/Hc_ext/cGAaiii', generations,
+                   mutation_iii, crossover_a)
+    ref_comp_addga(Hc, CGA_1, False, 'ref_comparison/Hc_ext/cGA1_inits/initial_pop_{:03d}.npy',
+                   'ref_comparison/Hc_ext/cGAbiii', generations,
+                   mutation_iii, crossover_b)
+    ref_comp_addga(Hh2, CGA_1, False, 'ref_comparison/Hh2_ext/cGA1_inits/initial_pop_{:03d}.npy',
+                   'ref_comparison/Hh2_ext/cGAaiii', generations,
+                   mutation_iii, crossover_a)
+    ref_comp_addga(Hh2, CGA_1, False, 'ref_comparison/Hh2_ext/cGA1_inits/initial_pop_{:03d}.npy',
+                   'ref_comparison/Hh2_ext/cGAbiii', generations,
+                   mutation_iii, crossover_b)
     print(time.time() - t1)

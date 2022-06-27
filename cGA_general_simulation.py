@@ -64,7 +64,48 @@ def cGA_simulation(number_of_first_Hp, number_of_last_Hp):
                     np.array(popbii, dtype=np.complex64))
 
 
+def cGA_individual_simulation(cga_mut, cga_cross, cga_name, number_of_first_Hp=0, number_of_last_Hp=200):
+    big_dir = "out_"+cga_name
+    number_of_initial_populations = 100
+    generations = 10
+    pm = 0.125
+
+    if not os.path.exists(big_dir):
+        os.mkdir(big_dir)
+
+    for i in range(number_of_first_Hp, number_of_last_Hp):
+        pathname = "problem_%d" % i
+
+        if os.path.exists("out_Ups/" + pathname + ".npy"):
+            up = np.load("out_Ups/" + pathname + ".npy")
+            H = up @ np.diag([1, 2, 3, 4]) @ up.transpose().conjugate()
+
+        if not os.path.exists(big_dir + "/" + pathname):
+            os.mkdir(big_dir + "/" + pathname)
+
+        for init_pop_index in range(number_of_initial_populations):
+            # Initial population
+            # WARNING! Initial populations are different!!!
+            # rho_population_mat = np.load("out_inits/problem_{:d}/initial_population_{:03d}".format(i,j) + ".npy")
+            # rho_population = qm.rho.gen_rho_from_matrix(rho_population_mat)
+            init_pop = [qm.rho.gen_random_rho(2, asvector=True) for i in range(4)]
+
+            # Computing the results
+            pop, ft = CGA_1(H, init_pop, 4, 2, generations, pm, cga_cross, cga_mut)
+
+            # Saving results
+            # Fidelities
+            np.save(big_dir + '/' + pathname + '/fidelity_tracks_{:03d}'.format(init_pop_index),
+                    np.array(ft, dtype=np.complex64))
+
+            # Final pop
+            np.save(big_dir + '/' + pathname + '/final_pop_{:03d}'.format(init_pop_index),
+                    np.array(pop, dtype=np.complex64))
+
+
 if __name__ == '__main__':
     t1 = time()
-    cGA_simulation(number_of_first_Hp=0, number_of_last_Hp=200)
+    #cGA_simulation(number_of_first_Hp=0, number_of_last_Hp=200)
+    cGA_individual_simulation(mutation_iii, crossover_a, 'cGAaiii')
+    cGA_individual_simulation(mutation_iii, crossover_b, 'cGAbiii')
     print(time() - t1)
