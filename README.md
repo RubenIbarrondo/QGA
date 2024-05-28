@@ -1,3 +1,13 @@
+This is the archived version of the project. 
+
+It is kept as a branch to facilitate access to the original code used in 
+
+- [https://doi.org/10.1109/TEVC.2023.3296780]()
+- [https://doi.org/10.1109/SSCI51031.2022.10022159]()
+
+
+-----
+
 # Quantum Genetic Algorithm
 
 This are programs for the simulation of the quantum genetic algorithm (QGA).
