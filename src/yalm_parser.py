@@ -44,6 +44,7 @@ def parse_yalm(file_path: str) -> list[dict]:
         input_data = yaml_data.copy()
 
         # Initialize these!!
+        # Any attribute dict should also get the population size and individuals
         input_data['track-features'] = {feat_name: _search_in_module(feature_trackers, feat_name, 'class')() for feat_name in yaml_data['track-features']}
         input_data['problem-generating-procedure'] = _search_in_module(problem_generators, yaml_data['problem-generating-procedure'], 'function')
         input_data['initial-state-generating-procedure'] = _search_in_module(state_generators, yaml_data['initial-state-generating-procedure'], 'function')
@@ -52,7 +53,6 @@ def parse_yalm(file_path: str) -> list[dict]:
             if key_attr.split('-')[-1] == 'attributes':
                 input_data[key_attr] = _parse_attribute_dict(attr_dict)
 
-        
         qga_attributes = input_data['qga-attributes']
         
         for initializing_subroutine in ['cloning', 'sorting', 'mutation']:
@@ -61,6 +61,8 @@ def parse_yalm(file_path: str) -> list[dict]:
                 qga_attributes[key_attr] = _parse_attribute_dict(attr_dict)
             else:
                 qga_attributes[key_attr] = dict()
+            qga_attributes[key_attr]['population_size'] = input_data['population-size']
+            qga_attributes[key_attr]['chromosome_size'] = input_data['chromosome-size']
 
             qga_attributes[initializing_subroutine] = _search_in_module(eval(f"subroutines.{initializing_subroutine}"), 
                                                                         qga_attributes[initializing_subroutine], 
