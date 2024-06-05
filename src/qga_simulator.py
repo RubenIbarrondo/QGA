@@ -1,7 +1,7 @@
 import sys
 from quantum_genetic_algorithm import quantum_genetic_algorithm
-from yalm_parser import parse_yalm
-from output_saver import save_outputs
+from parsers.yalm_parser import parse_yalm
+from parsers.output_saver import save_outputs
 
 
 if __name__ == "__main__":
@@ -11,6 +11,7 @@ if __name__ == "__main__":
 
     # For page in the YAML run the corresponding simulation
     for input_instance in input_instances:
+
         # Get problem instance generator
         problem_gen = input_instance["problem-generating-procedure"](**input_instance["problem-generating-procedure-attributes"])
         

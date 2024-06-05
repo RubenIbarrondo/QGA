@@ -1,15 +1,13 @@
 import subroutines
 import feature_trackers
-import problem_generators
-import state_generators
+import generators
+import subroutines.cloning
+import subroutines.mutation
+import subroutines.sorting
 
 from typing import Literal
 
 import yaml
-
-import subroutines.cloning
-import subroutines.mutation
-import subroutines.sorting
 
 def _search_in_module(module, keyword: str, typestr: Literal['class', 'function']):
     # may raise AttributeError
@@ -28,8 +26,10 @@ def _search_in_module(module, keyword: str, typestr: Literal['class', 'function'
             raise aerr
 
 
-def _parse_attribute_dict(attr_dict: dict[str, object]):
+def _parse_attribute_dict(attr_dict: dict[str, object], input_data: dict[str, object]):
     new_attr_dict = dict()
+    new_attr_dict['population_size'] = input_data['population-size']
+    new_attr_dict['chromosome_size'] = input_data['chromosome-size']
     for key, value in attr_dict.items():
         new_attr_dict[key.replace('-', '_')] = value
     return new_attr_dict
@@ -46,24 +46,22 @@ def parse_yalm(file_path: str) -> list[dict]:
         # Initialize these!!
         # Any attribute dict should also get the population size and individuals
         input_data['track-features'] = {feat_name: _search_in_module(feature_trackers, feat_name, 'class')() for feat_name in yaml_data['track-features']}
-        input_data['problem-generating-procedure'] = _search_in_module(problem_generators, yaml_data['problem-generating-procedure'], 'function')
-        input_data['initial-state-generating-procedure'] = _search_in_module(state_generators, yaml_data['initial-state-generating-procedure'], 'function')
+        input_data['problem-generating-procedure'] = _search_in_module(generators.problem_generators, yaml_data['problem-generating-procedure'], 'function')
+        input_data['initial-state-generating-procedure'] = _search_in_module(generators.state_generators, yaml_data['initial-state-generating-procedure'], 'function')
 
         for key_attr, attr_dict in yaml_data.items() :
             if key_attr.split('-')[-1] == 'attributes':
-                input_data[key_attr] = _parse_attribute_dict(attr_dict)
+                input_data[key_attr] = _parse_attribute_dict(attr_dict, yaml_data)
 
         qga_attributes = input_data['qga-attributes']
         
         for initializing_subroutine in ['cloning', 'sorting', 'mutation']:
             key_attr = f'{initializing_subroutine}-attributes'
             if key_attr in qga_attributes:
-                qga_attributes[key_attr] = _parse_attribute_dict(attr_dict)
+                qga_attributes[key_attr] = _parse_attribute_dict(attr_dict, yaml_data)
             else:
-                qga_attributes[key_attr] = dict()
-            qga_attributes[key_attr]['population_size'] = input_data['population-size']
-            qga_attributes[key_attr]['chromosome_size'] = input_data['chromosome-size']
-
+                qga_attributes[key_attr] = _parse_attribute_dict(dict(), yaml_data)
+            
             qga_attributes[initializing_subroutine] = _search_in_module(eval(f"subroutines.{initializing_subroutine}"), 
                                                                         qga_attributes[initializing_subroutine], 
                                                                         'class')(**qga_attributes[key_attr])

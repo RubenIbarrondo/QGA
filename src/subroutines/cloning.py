@@ -8,7 +8,7 @@ import pyqch.channel_operations as co
 class CloningSubroutine(ABC):
 
     @abstractmethod
-    def clone(self, state: np.ndarray) -> np.ndarray:
+    def clone(self, state: np.ndarray, single_individual: bool = False) -> np.ndarray:
         return state
 
 class UQCM(CloningSubroutine):
@@ -32,8 +32,10 @@ class UQCM(CloningSubroutine):
         # Build 1 to 2 cloning matrix
         self.clone_mat = 2 * self.dim / (self.dim + 1) * sym_proj @ id_extend
 
-    def clone(self, state: np.ndarray) -> np.ndarray:
-        
+    def clone(self, state: np.ndarray, single_individual: bool = False) -> np.ndarray:
+        if single_individual:
+            return (self.clone_mat @ state.reshape(self.dim ** 2)).reshape((self.dim ** 2, self.dim ** 2))
+    
         n_current = self.n // 2
         
         for individual in range(self.n // 2):
