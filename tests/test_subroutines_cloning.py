@@ -23,7 +23,7 @@ class TestSubroutinesCloning_UQCM(unittest.TestCase):
 
 
     def test_shapes(self):
-        self.assertEqual(self.uqcm.clone_mat, (self.uqcm.dim ** 4, self.uqcm.dim ** 2))
+        self.assertEqual(self.uqcm.clone_mat.shape, (self.uqcm.dim ** 4, self.uqcm.dim ** 2))
             
     def test_is_channel(self):
         self.assertTrue(predicates.is_channel(self.uqcm.clone_mat))
@@ -68,8 +68,22 @@ class TestSubroutinesCloning_UQCM(unittest.TestCase):
 
         pop_state_clone = self.uqcm.clone(self.pop_state)
 
-        self.assertEqual(pop_state_clone.shape, (self.chromosome_size ** self.population_size, self.chromosome_size ** self.population_size))
+        self.assertEqual(pop_state_clone.shape, (self.uqcm.dim ** self.population_size, self.uqcm.dim ** self.population_size))
 
         self.assertTrue(predicates.is_density_matrix(pop_state_clone))
 
-        raise NotImplementedError("Check something that tests that the cloning is happening.")
+        # Testing symmetry
+        pop_state_clone_swap = state_transformations.subsystem_permutation(pop_state_clone,
+                                                                           (self.uqcm.dim ** (self.population_size // 2),) * 2,
+                                                                           (1,0))
+        
+        np.testing.assert_array_almost_equal(pop_state_clone, pop_state_clone_swap)
+
+        # Testing the reduced state of the first
+        rho1 = state_transformations.partial_trace(pop_state_clone,
+                                                    (self.uqcm.dim,) * self.population_size,
+                                                    list(range(1,self.population_size)))
+        d = self.uqcm.dim
+        rho1_ref = .5 / (d + 1) * ((d+2) * self.psi + np.identity(d))
+
+        np.testing.assert_array_almost_equal(rho1, rho1_ref)
