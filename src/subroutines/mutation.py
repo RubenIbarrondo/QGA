@@ -55,11 +55,12 @@ class RandomPauli(MutationSubroutine):
                                                           
 
     def mutate(self, state: np.ndarray, random_select: bool = False) -> np.ndarray:
+        state_mut = state.copy()
+
         if random_select:
             mutation_pattern = self.random_state.choice(4,
                                                         self.chromosome_size * self.population_size,
                                                         p = self.probability_array)
-            state_mut = state.copy()
             for chromosome, unitary_index in enumerate(mutation_pattern):
                 if unitary_index > 0:
                     paulit = self.unitaries_aschannel_array[unitary_index]
@@ -68,14 +69,10 @@ class RandomPauli(MutationSubroutine):
                                                                     chromosome,
                                                                     paulit)
         else:
-            state_mut = state.copy()
-            print(f'Purity before mutating: {np.trace(state_mut @ state_mut).real:.3f} expected {1}')
 
             for chromosome in range(self.chromosome_size * self.population_size):
                 state_mut = state_transformations.local_channel(state_mut,
                                                                 self.system_shape,
                                                                 chromosome,
                                                                 self.local_mutation_mat)
-                print(np.diag(state_mut))
-                print(f'Purity after mutating chromosome {chromosome}: {np.trace(state_mut @ state_mut).real:.3f} expected <={1/(chromosome+2):.3f}')
         return state_mut

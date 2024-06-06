@@ -70,21 +70,30 @@ class TestSubroutinesMutation_RandomPauli(unittest.TestCase):
 
         arbpsi3 = zeromut.mutate(self.arbpsi, random_select=True)
         np.testing.assert_array_almost_equal(arbpsi3, self.arbpsi)
-        
+    
+    def test_prob34_isreplacer(self):
+        ppauli_from_depol = 3/4
+        treplacer = channel_families.depolarizing(2, 1.0)
+        onemut = mutation.RandomPauli(self.chromosome_size, self.population_size, ppauli_from_depol)
+        np.testing.assert_array_almost_equal(onemut.local_mutation_mat, treplacer)
+
     def test_prob34_ismaximallymixed(self):
         ppauli_from_depol = 3/4
         self.arbpsi = self.pop_state
         onemut = mutation.RandomPauli(self.chromosome_size, self.population_size, ppauli_from_depol)
+        
         arbpsi2 = onemut.mutate(self.arbpsi)
-        print(np.trace(arbpsi2 @ arbpsi2), 1/self.system_dim)
-        print(onemut.local_mutation_mat)
+        
         np.testing.assert_array_almost_equal(arbpsi2,
                                              np.identity(self.system_dim) / self.system_dim)
-        
-        # arbpsi2 = onemut.mutate(self.arbpsi, random_select=True)
-            
-    def test_aschannel_onpurestate(self):
+                    
+    def test_aschannel_isdepol(self):
         # Should be a local depolarizer
+        pdepol = 4 / 3  * self.mutation_probability
+        tdepol = channel_families.depolarizing(2, pdepol)
+        np.testing.assert_array_almost_equal(tdepol, self.rpauli.local_mutation_mat)
+
+    def test_aschannel_purestate(self):
         arbpsi2 = self.rpauli.mutate(self.arbpsi)
 
         pdepol = 4 / 3  * self.mutation_probability
