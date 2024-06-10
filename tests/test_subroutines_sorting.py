@@ -18,7 +18,7 @@ class TestSubroutinesSorting_FullSort(unittest.TestCase):
         self.system_dim = 2 ** (self.chromosome_size * self.population_size)
         self.random_state = 24597856786290
         
-
+        # Diagonal Hamiltonian
         classical_hamiltonian = np.diag(np.arange(2**self.chromosome_size))
 
         self.sorter = sorting.FullSort(self.chromosome_size, self.population_size, classical_hamiltonian)
@@ -27,7 +27,44 @@ class TestSubroutinesSorting_FullSort(unittest.TestCase):
         self.pop_state[0,0] = 1
 
         self.arbpsi = random_generators.state(self.system_dim, 1, self.random_state)
+
+        # Non-diagonal Hamiltonian
+        unit = random_generators.unitary_channel(2**self.chromosome_size, random_state=self.random_state)
+        quantum_hamiltonian = (unit @ classical_hamiltonian.reshape((4**self.chromosome_size))).reshape((2**self.chromosome_size, 2**self.chromosome_size))
+
+        self.qsorter = sorting.FullSort(self.chromosome_size, self.population_size, quantum_hamiltonian)
+
+        # Getting the ground state
+        qpsi_gs = np.outer(self.qsorter.basis[0,:], self.qsorter.basis[0,:].conj())
+
+        self.qpop_state = 1
+        for site in range(self.population_size):
+            self.qpop_state = np.kron(qpsi_gs, self.qpop_state)
     
+    def _get_sorted_state(self, sorter):
+        sorted_state = 1
+        seq = np.arange(2 ** self.chromosome_size)
+        for site in range(self.population_size):
+            if site >= seq[-1]:
+                index = seq[-1]
+            else:
+                index = site
+            site_state = np.outer(sorter.basis[index,:], sorter.basis[index,:].conj())
+            sorted_state = np.kron(sorted_state, site_state)
+        return sorted_state
+
+    def _get_unsorted_state(self, sorter):
+        unsorted_state = 1
+        seq = np.arange(2 ** self.chromosome_size)
+        for site in range(self.population_size):
+            if site >= seq[-1]:
+                index = seq[-1]
+            else:
+                index = site
+            site_state = np.outer(sorter.basis[index,:], sorter.basis[index,:].conj())
+            unsorted_state = np.kron(site_state, unsorted_state)
+        return unsorted_state
+
     def test_shapes(self):
 
         self.assertEqual(self.sorter.pairwise_sort_mat.shape,
@@ -39,19 +76,40 @@ class TestSubroutinesSorting_FullSort(unittest.TestCase):
         self.assertEqual(arbpsi.shape, self.arbpsi.shape)
         
     def test_is_channel(self):
-        #print(predicates.is_channel(self.sorter.pairwise_sort_mat, show=True))
         self.assertTrue(predicates.is_channel(self.sorter.pairwise_sort_mat))
 
     def test_gs_is_preserved(self):
         pop_psi2 = self.sorter.sort(self.pop_state)
         np.testing.assert_array_almost_equal(pop_psi2, self.pop_state)
 
+    def test_it_sorts(self):
+        sorted_state = self._get_sorted_state(self.sorter)
+        unsorted_state = self._get_unsorted_state(self.sorter)
+        unsorted_state2 = self.sorter.sort(unsorted_state)
+        np.testing.assert_array_almost_equal(unsorted_state2, sorted_state)
+
     def test_sorted_is_preserved(self):
-        sorted_state = 1
-        seq = np.arange(2 ** self.chromosome_size)
-        for site in range(self.population_size):
-            site_state = np.diag((seq == site) | (site >= seq[-1]))
-            sorted_state = np.kron(sorted_state, site_state)
+        sorted_state = self._get_sorted_state(self.sorter)
 
         sorted_state2 = self.sorter.sort(sorted_state)
         np.testing.assert_array_almost_equal(sorted_state2, sorted_state)
+
+    def test_is_channel_notcanonical(self):
+        self.assertTrue(predicates.is_channel(self.qsorter.pairwise_sort_mat))
+
+    def test_gs_is_preserved_notcanonical(self):
+        pop_state2 = self.qsorter.sort(self.qpop_state)
+        np.testing.assert_array_almost_equal(pop_state2, self.qpop_state)
+
+    def test_sorted_is_preserved_notcanonical(self):
+        sorted_state = self._get_sorted_state(self.qsorter)
+        sorted_state2 = self.qsorter.sort(sorted_state)
+        np.testing.assert_array_almost_equal(sorted_state2, sorted_state)
+    
+    def test_it_sorts_notcanonical(self):
+        sorted_state = self._get_sorted_state(self.qsorter)
+        unsorted_state = self._get_unsorted_state(self.qsorter)
+        unsorted_state2 = self.qsorter.sort(unsorted_state)
+        np.testing.assert_array_almost_equal(unsorted_state2, sorted_state)
+
+        

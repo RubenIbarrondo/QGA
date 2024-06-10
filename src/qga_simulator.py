@@ -17,7 +17,8 @@ if __name__ == "__main__":
         
         for id_problem, problem in enumerate(problem_gen):
             # The sorting procedure should be updated here to include the info about the Hamiltonian
-            
+            input_instance['qga-attributes']['sorting'].set_problem(problem)
+
             # Get state generator
             state_gen = input_instance["initial-state-generating-procedure"](**input_instance["initial-state-generating-procedure-attributes"])
             

@@ -1,6 +1,7 @@
 import subroutines
 import feature_trackers
-import generators
+import generators.problem_generators
+import generators.state_generators
 import subroutines.cloning
 import subroutines.mutation
 import subroutines.sorting
@@ -31,7 +32,10 @@ def _parse_attribute_dict(attr_dict: dict[str, object], input_data: dict[str, ob
     new_attr_dict['population_size'] = input_data['population-size']
     new_attr_dict['chromosome_size'] = input_data['chromosome-size']
     for key, value in attr_dict.items():
-        new_attr_dict[key.replace('-', '_')] = value
+        if key.split('-')[-1] != 'attributes':
+            new_attr_dict[key.replace('-', '_')] = value
+        else:
+            new_attr_dict[key] = value
     return new_attr_dict
 
 
@@ -57,15 +61,17 @@ def parse_yalm(file_path: str) -> list[dict]:
         
         for initializing_subroutine in ['cloning', 'sorting', 'mutation']:
             key_attr = f'{initializing_subroutine}-attributes'
+            
             if key_attr in qga_attributes:
                 qga_attributes[key_attr] = _parse_attribute_dict(attr_dict, yaml_data)
             else:
                 qga_attributes[key_attr] = _parse_attribute_dict(dict(), yaml_data)
-            
+            print(key_attr)
+            print(qga_attributes)
             qga_attributes[initializing_subroutine] = _search_in_module(eval(f"subroutines.{initializing_subroutine}"), 
                                                                         qga_attributes[initializing_subroutine], 
                                                                         'class')(**qga_attributes[key_attr])
-            
+        exit()
         input_data_list.append(input_data)
     return input_data_list
 
