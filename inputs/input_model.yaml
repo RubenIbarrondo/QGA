@@ -19,7 +19,8 @@ initial-state-generating-procedure-attributes:
     seed: null
 # Defining the QGA variant
 qga-attributes:
-    cloning: uqcm
+    cloning: u-q-c-m
+    mixing: off
     sorting: full-sort
     sorting-attributes:
         problem-deffinition: hamiltonian
@@ -55,7 +56,7 @@ initial-state-generating-procedure-attributes:
     seed: 123  # Same note as above
 # Defining the QGA variant
 qga-attributes:
-    cloning: uqcm
+    cloning: u-q-c-m
     sorting: full-sort
     mutation: random-pauli
     mutation-attributes:
@@ -81,7 +82,7 @@ initial-state-generating-procedure-attributes:
     dirpath: initial_states
 # Defining the QGA variant
 qga-attributes:
-    cloning: uqcm
+    cloning: u-q-c-m
     sorting: full-sort
     mutation: random-pauli
     mutation-attributes:
