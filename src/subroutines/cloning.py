@@ -1,11 +1,12 @@
 import numpy as np
-from abc import ABC, abstractmethod
+from src.subroutines.abs_subroutine import AbstractSubroutine
+from abc import abstractmethod
 
 import pyqch.state_transformations as st
 import pyqch.channel_families as cf
 import pyqch.channel_operations as co
 
-class CloningSubroutine(ABC):
+class CloningSubroutine(AbstractSubroutine):
 
     @abstractmethod
     def clone(self, state: np.ndarray, single_individual: bool = False) -> np.ndarray:

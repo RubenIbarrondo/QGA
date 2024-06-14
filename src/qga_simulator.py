@@ -1,6 +1,6 @@
 import sys
 from quantum_genetic_algorithm import quantum_genetic_algorithm
-from parsers.yalm_parser import parse_yaml
+from parsers.yaml_parser import parse_yaml
 from parsers.output_saver import save_outputs
 
 

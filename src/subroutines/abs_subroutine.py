@@ -1,10 +1,16 @@
+from abc import ABC
 import numpy as np
-from abc import ABC, abstractmethod
 
-class FeatureTracker(ABC):
+class AbstractSubroutine(ABC):
 
-    def __init__(self, **kwargs):
-        pass
+    def __init__(self, chromosome_size: int, population_size: int, **kwargs):
+        self.chromosome_size = chromosome_size
+        self.population_size = population_size
+        self.dim = 2 ** self.chromosome_size
+        self.dim_pop = self.dim ** self.population_size
+
+        self.system_shape = (self.dim,) * self.population_size
+        
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -24,13 +30,3 @@ class FeatureTracker(ABC):
             return True
         else:
             return False
-
-    @abstractmethod
-    def track(self, state: np.ndarray) -> np.ndarray:
-        pass
-
-
-class IndividualEigenstateFidelity(FeatureTracker):
-
-    def track(self, state: np.ndarray) -> np.ndarray:
-        return np.array([np.trace(state)])

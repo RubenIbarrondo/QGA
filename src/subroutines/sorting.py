@@ -1,18 +1,11 @@
 import numpy as np
-from abc import ABC, abstractmethod
+from src.subroutines.abs_subroutine import AbstractSubroutine
+from abc import abstractmethod
 from typing import Iterable
 
 from pyqch import state_transformations
 
-class SortingSubroutine(ABC):
-
-    def __init__(self, chromosome_size: int, population_size: int, **kwargs):
-        self.chromosome_size = chromosome_size
-        self.population_size = population_size
-        self.dim = 2 ** self.chromosome_size
-        self.dim_pop = self.dim ** self.population_size
-
-        self.system_shape = (self.dim,) * self.population_size
+class SortingSubroutine(AbstractSubroutine):
 
     @abstractmethod
     def set_problem(self, **kwargs):

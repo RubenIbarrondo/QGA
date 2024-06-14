@@ -1,11 +1,12 @@
 import numpy as np
-from abc import ABC, abstractmethod
+from src.subroutines.abs_subroutine import AbstractSubroutine
+from abc import abstractmethod
 
 from pyqch.channel_families import probabilistic_unitaries
 from pyqch import state_transformations
 from pyqch import random_generators
 
-class MutationSubroutine(ABC):
+class MutationSubroutine(AbstractSubroutine):
 
     @abstractmethod
     def mutate(self, state: np.ndarray) -> np.ndarray:
