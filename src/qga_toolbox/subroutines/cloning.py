@@ -2,6 +2,7 @@ import numpy as np
 from qga_toolbox.subroutines.abs_subroutine import AbstractSubroutine
 from abc import abstractmethod
 
+from pyqch.predicates import is_system_compatible
 import pyqch.state_transformations as st
 import pyqch.channel_families as cf
 import pyqch.channel_operations as co
@@ -36,8 +37,11 @@ class UQCM(CloningSubroutine):
     def clone(self, state: np.ndarray, single_individual: bool = False) -> np.ndarray:
         if single_individual:
             return (self.clone_mat @ state.reshape(self.dim ** 2)).reshape((self.dim ** 2, self.dim ** 2))
-    
+
         n_current = self.n // 2
+
+        if not is_system_compatible(state, (self.dim,) * n_current):
+            raise ValueError(f"State with shape {state.shape} cannot be interpreted as system shape ({self.dim},)*{n_current}.")
         
         for individual in range(self.n // 2):
             

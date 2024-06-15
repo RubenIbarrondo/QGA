@@ -87,3 +87,11 @@ class TestSubroutinesCloning_UQCM(unittest.TestCase):
         rho1_ref = .5 / (d + 1) * ((d+2) * self.psi + np.identity(d))
 
         np.testing.assert_array_almost_equal(rho1, rho1_ref)
+    
+
+    def test_error_if_state_too_big(self):
+        too_big_pop_state = np.zeros((self.uqcm.dim ** (self.population_size),) * 2)
+        too_big_pop_state[0,0] = 1
+
+        with self.assertRaises(ValueError):
+            self.uqcm.clone(too_big_pop_state)

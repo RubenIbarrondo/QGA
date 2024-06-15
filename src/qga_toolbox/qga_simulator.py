@@ -4,10 +4,9 @@ from parsers.yaml_parser import parse_yaml
 from parsers.output_saver import save_outputs
 
 
-if __name__ == "__main__":
-
+def run_qga_simulation(input_yaml_path: str):
     # Read the input YAML
-    input_instances = parse_yaml(sys.argv[1])
+    input_instances = parse_yaml(input_yaml_path)
 
     # For page in the YAML run the corresponding simulation
     for input_instance in input_instances:
@@ -31,3 +30,10 @@ if __name__ == "__main__":
                              input_id = input_instance["input_id"],
                              problem_instance_id = id_problem,
                              state_instance_id = id_state)
+
+if __name__ == "__main__":
+    run_qga_simulation(sys.argv[1])
+
+    
+
+    
