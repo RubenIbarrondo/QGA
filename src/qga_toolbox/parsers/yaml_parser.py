@@ -3,12 +3,12 @@ if __name__ == "__main__":
     import sys, os
     sys.path.append(os.path.dirname(sys.path[0]))
 
-import src
-from src.subroutines import cloning, sorting, mutation, mixing
-from src.generators import problem_generators, state_generators
-from src import feature_trackers
+import qga_toolbox
+from qga_toolbox.subroutines import cloning, sorting, mutation, mixing
+from qga_toolbox.generators import problem_generators, state_generators
+from qga_toolbox import feature_trackers
 
-from typing import Literal, Callable
+from typing import Callable
 
 import yaml
 

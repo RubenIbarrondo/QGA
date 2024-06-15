@@ -5,7 +5,7 @@ from pyqch import predicates
 from pyqch import channel_operations
 from pyqch import state_transformations
 from pyqch import state_families
-from src.subroutines import cloning
+from qga_toolbox.subroutines import cloning
 
 class TestSubroutinesCloning_UQCM(unittest.TestCase):
 

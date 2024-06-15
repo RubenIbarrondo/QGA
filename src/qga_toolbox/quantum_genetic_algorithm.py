@@ -1,7 +1,7 @@
-from subroutines.cloning import CloningSubroutine
-from subroutines.sorting import SortingSubroutine
-from subroutines.mutation import MutationSubroutine
-from feature_trackers import FeatureTracker
+from qga_toolbox.subroutines.cloning import CloningSubroutine
+from qga_toolbox.subroutines.sorting import SortingSubroutine
+from qga_toolbox.subroutines.mutation import MutationSubroutine
+from qga_toolbox.feature_trackers import FeatureTracker
 import numpy as np
 
 def quantum_genetic_algorithm(initial_state: np.ndarray,

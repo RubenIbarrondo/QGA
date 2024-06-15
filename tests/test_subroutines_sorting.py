@@ -6,7 +6,7 @@ from pyqch import channel_operations
 from pyqch import state_transformations
 from pyqch import channel_families
 from pyqch import random_generators
-from src.subroutines import sorting
+from qga_toolbox.subroutines import sorting
 
 class TestSubroutinesSorting_FullSort(unittest.TestCase):
 

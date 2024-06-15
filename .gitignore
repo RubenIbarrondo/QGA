@@ -2,3 +2,5 @@ outputs
 .venv
 *.pyc
 .DS_Store
+build/
+src/qga_toolbox.egg-info/

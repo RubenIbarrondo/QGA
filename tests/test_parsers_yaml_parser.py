@@ -2,12 +2,11 @@ import unittest
 
 import sys, os
 
+from qga_toolbox.subroutines import cloning, sorting, mutation, mixing
+from qga_toolbox.generators import problem_generators, state_generators
+from qga_toolbox import feature_trackers
 
-from src.subroutines import cloning, sorting, mutation, mixing
-from src.generators import problem_generators, state_generators
-from src import feature_trackers
-
-from src.parsers import yaml_parser
+from qga_toolbox.parsers import yaml_parser
 
 
 class TestParsers_YamlParser(unittest.TestCase):

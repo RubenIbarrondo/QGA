@@ -1,5 +1,5 @@
 import numpy as np
-from src.subroutines.abs_subroutine import AbstractSubroutine
+from qga_toolbox.subroutines.abs_subroutine import AbstractSubroutine
 from abc import abstractmethod
 
 class MixingSubroutine(AbstractSubroutine):
