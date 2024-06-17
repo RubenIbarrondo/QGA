@@ -52,7 +52,7 @@ class SortingNetwork(SortingSubroutine):
 class FullSort(SortingNetwork):
     
     def __init__(self,  chromosome_size: int, population_size: int, hamiltonian: np.ndarray = None, degtol: float = 1e-6, **kwargs):
-        super().__init__( chromosome_size, population_size, **kwargs)
+        super().__init__(chromosome_size, population_size, **kwargs)
 
         if hamiltonian is not None:
             self.set_problem(hamiltonian, degtol)

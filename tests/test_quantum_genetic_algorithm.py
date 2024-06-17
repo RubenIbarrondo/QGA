@@ -7,7 +7,7 @@ from qga_toolbox.subroutines import cloning, sorting, mixing, mutation
 
 class TestQuantumGeneticAlgorithm(unittest.TestCase):
 
-    def test_uqcm_with_canonicalH(self) -> None:
+    def test_uqcm_mixingoff_canonicalH(self) -> None:
         ps = 4
         cs = 2
         g = 1
