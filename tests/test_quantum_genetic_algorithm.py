@@ -11,7 +11,7 @@ class TestQuantumGeneticAlgorithm(unittest.TestCase):
     def test_clone_and_conquer(self) -> None:
         ps = 2
         cs = 2
-        g = 5
+        g = 10
 
         state = np.identity(2 ** (ps * cs)) / (2 ** (ps * cs))
         basis = np.identity(2 ** cs)
@@ -40,10 +40,11 @@ class TestQuantumGeneticAlgorithm(unittest.TestCase):
         self.assertEqual(final_state.shape, state.shape)
 
         # Test expected results
-        print(np.array(tracked[fid]))
-        print()
-        first_fid_post_sort = np.array(tracked[fid])[::4, 0, 0]  # Fidelity of the first register with the ground state right after sort
-        fid_ref = 1 - (2 ** cs / (2 ** cs+1)) ** (ps / 2 * np.arange(g+1)) * (1 - 1/ 2 ** cs)
+        first_fid_post_sort = np.array(tracked[fid])[1::4, 0, 0]  # Fidelity of the first register with the ground state right after sort
+        # the probability to measure the ground state in at leats one of the registers
+        f0 = 1 - (1 - 1/ 2 ** cs) ** ps
+        fid_ref = 1 - (2 ** cs / (2 ** cs+1)) ** (ps / 2 * np.arange(g)) * (1 - f0)
+
         np.testing.assert_array_almost_equal(first_fid_post_sort, fid_ref)
 
     def test_uqcm_mixingoff_canonicalH(self) -> None:
@@ -77,8 +78,10 @@ class TestQuantumGeneticAlgorithm(unittest.TestCase):
         self.assertEqual(final_state.shape, state.shape)
 
         # Test expected results
-        first_fid_post_sort = np.array(tracked[fid])[::4, 0, 0]  # Fidelity of the first register with the ground state right after sort
-        fid_ref = 1 - (2 ** cs / (2 ** cs+1)) ** (ps / 2 * np.arange(g+1)) * (1 - 1/ 2 ** cs)
+        first_fid_post_sort = np.array(tracked[fid])[1::4, 0, 0]  # Fidelity of the first register with the ground state right after sort
+        # the probability to measure the ground state in at leats one of the registers
+        f0 = 1 - (1 - 1/ 2 ** cs) ** ps
+        fid_ref = 1 - (2 ** cs / (2 ** cs+1)) ** (ps / 2 * np.arange(g)) * (1 - f0)
         np.testing.assert_array_almost_equal(first_fid_post_sort, fid_ref)
 
 

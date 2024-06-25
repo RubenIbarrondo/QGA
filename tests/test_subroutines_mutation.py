@@ -70,7 +70,9 @@ class TestSubroutinesMutation_RandomPauli(unittest.TestCase):
 
         arbpsi3 = zeromut.mutate(self.arbpsi, random_select=True)
         np.testing.assert_array_almost_equal(arbpsi3, self.arbpsi)
-    
+
+        np.testing.assert_array_almost_equal(zeromut.local_mutation_mat, np.identity(zeromut.dim))
+
     def test_prob34_isreplacer(self):
         ppauli_from_depol = 3/4
         treplacer = channel_families.depolarizing(2, 1.0)

@@ -16,8 +16,7 @@ class CloningSubroutine(AbstractSubroutine):
 class UQCM(CloningSubroutine):
 
     def __init__(self, chromosome_size: int, population_size: int, **kwargs):
-
-        self.dim = int(2 ** chromosome_size)
+        super().__init__(chromosome_size, population_size, **kwargs)
         self.n = int(population_size)
 
         # Build the projector onto the symmetric subspace of 2 individuals

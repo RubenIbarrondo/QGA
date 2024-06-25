@@ -15,6 +15,8 @@ class MutationSubroutine(AbstractSubroutine):
 class RandomPauli(MutationSubroutine):
 
     def __init__(self, chromosome_size: int, population_size: int, mutation_probability: float, random_state: int | np.random.Generator = None, **kwargs):
+        super().__init__(chromosome_size, population_size, **kwargs)
+
         if random_state is not None:
             self.random_state = np.random.default_rng(random_state)
         else:
