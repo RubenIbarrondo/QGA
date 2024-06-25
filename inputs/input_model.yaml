@@ -1,0 +1,95 @@
+---
+# Input to simulate a QGA based on uqcm
+input-id: uqcm.20.05.2024
+output-directory-path: outputs
+track-features:
+    - individual-eigenstate-fidelity
+population-size: 4
+chromosome-size: 2 
+# Generating random problem set
+problem-generating-procedure: haar-random-hamiltonian
+problem-generating-procedure-attributes:
+    energies: non-degenerate
+    problem-instance-number: 5
+    seed: null
+# Generating random states
+initial-state-generating-procedure: haar-random-states
+initial-state-generating-procedure-attributes:
+    initial-population-number: 10
+    seed: null
+# Defining the QGA variant
+qga-attributes:
+    cloning: u-q-c-m
+    mixing: mixing-off
+    sorting: full-sort
+    sorting-attributes:
+        problem-deffinition: hamiltonian
+    mutation: random-pauli
+    mutation-attributes:
+        mutation-probability: 0.1
+    generations: 10
+---
+# Input to simulate a QGA based on uqcm
+# It is pseudo-reproducible because the problem instance procedure generation
+# and initial state generator are fixed, but other stochastic processes in the
+# QGA may happen that make different runs not exactly the same.
+input-id: uqcm.20.05.2024.pseudo-reproducible
+output-directory-path: outputs
+track-features:
+    - individual-eigenstate-fidelity
+population-size: 4
+chromosome-size: 2
+# Generating random problem set
+problem-generating-procedure: haar-random-hamiltonian
+problem-generating-procedure-attributes:
+    dimension: 4
+    energies: non-degenerate
+    problem-instance-number: 5
+    seed: 123
+    # This serves as a reference for the procedure generating Hamiltonians, 
+    # but shoud not affect the predictability of other procedures.
+    # https://blog.scientific-python.org/numpy/numpy-rng/
+# Generating ranodm states
+initial-state-generating-procedure: haar-random-states
+initial-state-generating-procedure-attributes:
+    initial-population-number: 10
+    seed: 123  # Same note as above
+# Defining the QGA variant
+qga-attributes:
+    cloning: u-q-c-m
+    mixing: mixing-off
+    sorting: full-sort
+    sorting-attributes:
+        problem-deffinition: hamiltonian
+    mutation: random-pauli
+    mutation-attributes:
+        mutation-probability: 0.1
+    generations: 10
+---
+# Input to simulate a QGA based on uqcm
+# Reading inputs from a file
+input-id: uqcm.20.05.2024.dir-reproducible
+output-directory-path: outputs
+track-features:
+    - individual-eigenstate-fidelity
+population-size: 4
+chromosome-size: 2
+# Generating random problem set
+problem-generating-procedure: hamiltonian-sample-directory
+problem-generating-procedure-attributes:
+    dirpath: hamiltonians
+# Generating ranodm states
+initial-state-generating-procedure: init-state-sample-directory
+initial-state-generating-procedure-attributes:
+    dirpath: initial_states
+# Defining the QGA variant
+qga-attributes:
+    cloning: u-q-c-m
+    mixing: mixing-off
+    sorting: full-sort
+    sorting-attributes:
+        problem-deffinition: hamiltonian
+    mutation: random-pauli
+    mutation-attributes:
+        mutation-probability: 0.1
+    generations: 10
