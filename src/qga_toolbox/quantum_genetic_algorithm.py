@@ -16,7 +16,7 @@ def quantum_genetic_algorithm(initial_state: np.ndarray,
                               generations: int,
                               population_size: int,
                               chromosome_size: int,
-                               track_features: dict[str, FeatureTracker] = dict(),
+                              track_features: dict[str, FeatureTracker] = dict(),
                               **kwargs) -> tuple[np.ndarray, dict[str,list[np.ndarray]]]:
 
     state_offspring = initial_state
