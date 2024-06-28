@@ -43,9 +43,15 @@ class TestSubroutinesMixing_MixingFixedIndext(unittest.TestCase):
                                          mixing_index = bad_mixing_index)
 
     def test_mixing_permutation_ok(self):
-        self.mixer.mixing_permutation[:self.population_size]
-        pass
-
+        self.assertEqual(self.mixer.mixing_permutation[:self.population_size],
+                         list(range(self.population_size)))
+        self.assertEqual(self.mixer.mixing_permutation[self.population_size::2],
+                         list(range(self.population_size, 2*self.population_size, 2)))
+        self.assertEqual(self.mixer.mixing_permutation[self.population_size+1::4],
+                         list(range(self.population_size+3, 2*self.population_size, 4)))
+        self.assertEqual(self.mixer.mixing_permutation[self.population_size+3::4],
+                         list(range(self.population_size+1, 2*self.population_size, 4)))
+        
     def test_commutes_with_pairwise_swaps(self):
         pass
 
