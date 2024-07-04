@@ -21,7 +21,7 @@ class MixingFixedIndex(MixingSubroutine):
     def __init__(self, chromosome_size: int, population_size: int, mixing_index: int, **kwargs):
         super().__init__(chromosome_size, population_size, **kwargs)
 
-        if mixing_index > chromosome_size +1:
+        if mixing_index >= chromosome_size +1:
             raise ValueError(f"Mixing index must be between 0 and chromosome_size, but {mixing_index} > {chromosome_size}")
         
         self.mixing_index = mixing_index
