@@ -18,6 +18,8 @@ def run_qga_simulation(input_yaml_path: str):
         for id_problem, problem in enumerate(prolem_generator.generate()):
             # The sorting procedure should be updated here to include the Hamiltonian
             input_instance['qga_attributes']['sorting'].set_problem(problem)
+            for tf in input_instance['track_features']:
+                tf.set_up(**{'hamiltonian': problem})
             
             for id_state, state in enumerate(state_generator.generate()):
                 

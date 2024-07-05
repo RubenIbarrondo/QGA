@@ -12,6 +12,8 @@ class FeatureTracker(ABC):
         self.dim_pop = self.dim ** self.population_size
         self.system_shape = (self.dim,) * self.population_size
 
+        self.name = None
+
     def set_up(self, **kwargs):
         pass
 
@@ -44,12 +46,15 @@ class IndividualEigenstateFidelity(FeatureTracker):
     def __init__(self, chromosome_size: int, population_size: int, energy_basis: np.ndarray = None, **kwargs):
         super().__init__(chromosome_size=chromosome_size, population_size=population_size, **kwargs)
 
+        self.name = 'individual_eig_fidelity'
         self.set_up(energy_basis)            
     
-    def set_up(self, energy_basis: np.ndarray = None):
-        if energy_basis is None:
+    def set_up(self, hamiltonian: np.ndarray = None):
+
+        if hamiltonian is None:
             self.energy_basis = None
         else:
+            _, energy_basis = np.linalg.eigh(hamiltonian)
             if energy_basis.shape[0] != self.dim:
                 raise ValueError(f"Incompatible energy_basis with shape {energy_basis.shape} for self dimension {self.dim}.")
             self.energy_basis = energy_basis

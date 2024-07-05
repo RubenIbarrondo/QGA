@@ -4,3 +4,4 @@ outputs
 .DS_Store
 build/
 src/qga_toolbox.egg-info/
+notebooks/

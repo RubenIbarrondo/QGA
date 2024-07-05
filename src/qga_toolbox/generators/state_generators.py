@@ -1,5 +1,7 @@
 import numpy as np
 
+from pyqch import random_generators
+
 class _StateGenerator:
 
     def __eq__(self, other):
@@ -27,10 +29,15 @@ class HaarRandomStates(_StateGenerator):
         self.initial_population_number = initial_population_number
         self.population_size = population_size
         self.chromosome_size = chromosome_size
-
+        
+        self.seed = seed
+        
     def generate(self):
+        random_state_generator = np.random.default_rng(self.seed)
         for ip in range(self.initial_population_number):
-            initial_state = np.identity(2**(self.population_size * self.chromosome_size)) / 2**(self.population_size * self.chromosome_size)
+            initial_state = random_generators.state(2**(self.population_size * self.chromosome_size),
+                                                    rank=1,
+                                                    random_state=random_state_generator)
             yield initial_state
 
 class InitStateSampleDirectory(_StateGenerator):

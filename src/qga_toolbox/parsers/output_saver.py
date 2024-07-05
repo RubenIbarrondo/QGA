@@ -10,8 +10,9 @@ def save_outputs(outputs, output_directory_path: str, input_id: str, problem_ins
     try:        
         for feature_name, feature_arr in tracked_features.items():
             file_name = f"problem_{problem_instance_id}_state_{state_instance_id}_{feature_name}"
+            
             np.save(os.path.join(output_directory_path, input_id, file_name),
-                    feature_arr)
+                    np.array(feature_arr))
             
     except FileNotFoundError as fnfe:
         if not os.path.exists(output_directory_path):

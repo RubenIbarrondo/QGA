@@ -17,18 +17,20 @@ problem-generating-procedure-attributes:
 # Generating random states
 initial-state-generating-procedure: haar-random-states
 initial-state-generating-procedure-attributes:
-    initial-population-number: 10
+    initial-population-number: 3  # 10
     seed: 20240704
 # Defining the QGA variant
 qga-attributes:
     cloning: u-q-c-m
     mixing: mixing-fixed-index
+    mixing-attributes:
+        mixing-index: 1
     sorting: full-sort
     sorting-attributes:
         problem-deffinition: hamiltonian
     mutation: random-pauli
     mutation-attributes:
-        mutation-probability: 1/24
+        mutation-probability: 0.0416667 # 1/24
     generations: 10
 ---
 # -- UQCM-based QGA wo/ mut--
@@ -49,12 +51,14 @@ problem-generating-procedure-attributes:
 # Generating random states
 initial-state-generating-procedure: haar-random-states
 initial-state-generating-procedure-attributes:
-    initial-population-number: 10
+    initial-population-number: 3  # 10
     seed: 20240704
 # Defining the QGA variant
 qga-attributes:
     cloning: u-q-c-m
     mixing: mixing-fixed-index
+    mixing-attributes:
+        mixing-index: 1
     sorting: full-sort
     sorting-attributes:
         problem-deffinition: hamiltonian
@@ -62,4 +66,3 @@ qga-attributes:
     mutation-attributes:
         mutation-probability: 0.0
     generations: 10
----
