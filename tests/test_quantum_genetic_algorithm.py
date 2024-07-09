@@ -23,8 +23,7 @@ class TestQuantumGeneticAlgorithm(unittest.TestCase):
         mx = mixing.MixingOff(population_size = ps, chromosome_size = cs)
         mt = mutation.RandomPauli(population_size = ps, chromosome_size = cs, mutation_probability=mprob)
 
-        fid = "fidelities"
-        tfs = {fid: feature_trackers.IndividualEigenstateFidelity(chromosome_size=cs,population_size=ps,energy_basis=basis)}
+        tfs = [feature_trackers.IndividualEigenstateFidelity(chromosome_size=cs,population_size=ps,energy_basis=basis)]
         final_state, tracked = quantum_genetic_algorithm(initial_state= state,
                                                         cloning = c,
                                                         sorting = s,
@@ -40,7 +39,7 @@ class TestQuantumGeneticAlgorithm(unittest.TestCase):
         self.assertEqual(final_state.shape, state.shape)
 
         # Test expected results
-        first_fid_post_sort = np.array(tracked[fid])[1::4, 0, 0]  # Fidelity of the first register with the ground state right after sort
+        first_fid_post_sort = np.array(tracked[tfs[0].name])[1::4, 0, 0]  # Fidelity of the first register with the ground state right after sort
         # the probability to measure the ground state in at leats one of the registers
         f0 = 1 - (1 - 1/ 2 ** cs) ** ps
         fid_ref = 1 - (2 ** cs / (2 ** cs+1)) ** (ps / 2 * np.arange(g)) * (1 - f0)
@@ -61,8 +60,7 @@ class TestQuantumGeneticAlgorithm(unittest.TestCase):
         mx = mixing.MixingOff(population_size = ps, chromosome_size = cs)
         mt = mutation.RandomPauli(population_size = ps, chromosome_size = cs, mutation_probability=mprob)
 
-        fid = "fidelities"
-        tfs = {fid: feature_trackers.IndividualEigenstateFidelity(chromosome_size=cs,population_size=ps,energy_basis=basis)}
+        tfs = [feature_trackers.IndividualEigenstateFidelity(chromosome_size=cs,population_size=ps,energy_basis=basis)]
         final_state, tracked = quantum_genetic_algorithm(initial_state= state,
                                                         cloning = c,
                                                         sorting = s,
@@ -78,7 +76,7 @@ class TestQuantumGeneticAlgorithm(unittest.TestCase):
         self.assertEqual(final_state.shape, state.shape)
 
         # Test expected results
-        first_fid_post_sort = np.array(tracked[fid])[1::4, 0, 0]  # Fidelity of the first register with the ground state right after sort
+        first_fid_post_sort = np.array(tracked[tfs[0].name])[1::4, 0, 0]  # Fidelity of the first register with the ground state right after sort
         # the probability to measure the ground state in at leats one of the registers
         f0 = 1 - (1 - 1/ 2 ** cs) ** ps
         fid_ref = 1 - (2 ** cs / (2 ** cs+1)) ** (ps / 2 * np.arange(g)) * (1 - f0)
@@ -98,7 +96,7 @@ if __name__ == '__main__':
     mx = mixing.MixingOff(population_size = ps, chromosome_size = cs)
     mt = mutation.RandomPauli(population_size = ps, chromosome_size = cs, mutation_probability=mprob)
 
-    tfs = {}
+    tfs = []
     final_state, tracked = quantum_genetic_algorithm(initial_state= state,
                                                     cloning = c,
                                                     sorting = s,

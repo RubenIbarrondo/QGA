@@ -32,13 +32,19 @@ class HaarRandomHamiltonian(_ProblemGenerator):
         self.problem_instance_number = problem_instance_number
         if energies == 'non-degenerate':
             self.energies = np.arange(self.dimension)
+        elif isinstance(energies, str):
+            raise ValueError(f"Allowed values for energies are iterables or the string literal {'non-degenerate'}, but {energies} was obtained.")
         else:
             self.energies = np.array(energies)
+
+        self.seed = seed
     
     def generate(self):
+        random_state_generator = np.random.default_rng(self.seed)
+
         ref_hamiltonian = np.diag(self.energies)
         for _ in range(self.problem_instance_number):
-            u = unitary_group(self.dimension)
+            u = unitary_group.rvs(self.dimension, random_state=random_state_generator)
             problem_hamiltonian = u @ ref_hamiltonian @ u.T.conj()
             yield problem_hamiltonian
 

@@ -16,15 +16,15 @@ def quantum_genetic_algorithm(initial_state: np.ndarray,
                               generations: int,
                               population_size: int,
                               chromosome_size: int,
-                              track_features: dict[str, FeatureTracker] = dict(),
+                              track_features: list[FeatureTracker] = list(),
                               **kwargs) -> tuple[np.ndarray, dict[str,list[np.ndarray]]]:
 
     state_offspring = initial_state
-    tracked_features = {feature_name: [feature_tracker.track(state_offspring)] for feature_name, feature_tracker in track_features.items()}
+    tracked_features = {feature_tracker.name: [feature_tracker.track(state_offspring)] for feature_tracker in track_features}
 
     def _record_feature(state):
-        for feature_name, feature_tracker in track_features.items():
-            tracked_features[feature_name].append(feature_tracker.track(state))
+        for feature_tracker in track_features:
+            tracked_features[feature_tracker.name].append(feature_tracker.track(state))
 
     for generation in range(generations):
 
