@@ -1,0 +1,140 @@
+---
+# -- UQCM-based QGA w/ mut--
+# This input replicates the simulations for the UQCM-based variant
+# of the QGA with mutaiton as presented in Section III of arXiv: 2203.15039
+input-id: uqcm_wm.19.07.2024
+output-directory-path: outputs
+track-features:
+    - individual-eigenstate-fidelity
+population-size: 4
+chromosome-size: 2 
+# Generating random problem set
+problem-generating-procedure: haar-random-hamiltonian
+problem-generating-procedure-attributes:
+    energies: non-degenerate
+    problem-instance-number: 200
+    seed: 20240704
+# Generating random states
+initial-state-generating-procedure: haar-random-states
+initial-state-generating-procedure-attributes:
+    initial-population-number: 3  # 10
+    seed: 20240704
+# Defining the QGA variant
+qga-attributes:
+    cloning: u-q-c-m
+    mixing: mixing-fixed-index
+    mixing-attributes:
+        mixing-index: 1
+    sorting: full-sort
+    sorting-attributes:
+        problem-deffinition: hamiltonian
+    mutation: random-pauli
+    mutation-attributes:
+        mutation-probability: 0.0416667 # 1/24
+    generations: 10
+---
+# -- UQCM-based QGA wo/ mut--
+# This input replicates the simulations for the UQCM-based variant
+# of the QGA without mutaiton as presented in Section III of arXiv: 2203.15039
+input-id: uqcm_wom.19.07.2024
+output-directory-path: outputs
+track-features:
+    - individual-eigenstate-fidelity
+population-size: 4
+chromosome-size: 2 
+# Generating random problem set
+problem-generating-procedure: haar-random-hamiltonian
+problem-generating-procedure-attributes:
+    energies: non-degenerate
+    problem-instance-number: 200
+    seed: 20240704
+# Generating random states
+initial-state-generating-procedure: haar-random-states
+initial-state-generating-procedure-attributes:
+    initial-population-number: 3  # 10
+    seed: 20240704
+# Defining the QGA variant
+qga-attributes:
+    cloning: u-q-c-m
+    mixing: mixing-fixed-index
+    mixing-attributes:
+        mixing-index: 1
+    sorting: full-sort
+    sorting-attributes:
+        problem-deffinition: hamiltonian
+    mutation: random-pauli
+    mutation-attributes:
+        mutation-probability: 0.0
+    generations: 10
+---
+# -- BCQO-based QGA w/ mut--
+# This input replicates the simulations for the BCQO-based variant
+# of the QGA with mutation as presented in Section III of arXiv: 2203.15039
+input-id: bcqo_wm.19.07.2024
+output-directory-path: outputs
+track-features:
+    - individual-eigenstate-fidelity
+population-size: 4
+chromosome-size: 2 
+# Generating random problem set
+problem-generating-procedure: haar-random-hamiltonian
+problem-generating-procedure-attributes:
+    energies: non-degenerate
+    problem-instance-number: 200
+    seed: 20240704
+# Generating random states
+initial-state-generating-procedure: haar-random-states
+initial-state-generating-procedure-attributes:
+    initial-population-number: 3  # 10
+    seed: 20240704
+# Defining the QGA variant
+qga-attributes:
+    cloning: b-c-q-o
+    cloning-attributes:
+        cloning-basis: 1
+    mixing: mixing-fixed-index
+    mixing-attributes:
+        mixing-index: 1
+    sorting: full-sort
+    sorting-attributes:
+        problem-deffinition: hamiltonian
+    mutation: random-pauli
+    mutation-attributes:
+        mutation-probability: 0.0416667 # 1/24
+    generations: 10
+---
+# -- BCQO-based QGA wo/ mut--
+# This input replicates the simulations for the BCQO-based variant
+# of the QGA without mutation as presented in Section III of arXiv: 2203.15039
+input-id: bcqo_wom.19.07.2024
+output-directory-path: outputs
+track-features:
+    - individual-eigenstate-fidelity
+population-size: 4
+chromosome-size: 2 
+# Generating random problem set
+problem-generating-procedure: haar-random-hamiltonian
+problem-generating-procedure-attributes:
+    energies: non-degenerate
+    problem-instance-number: 200
+    seed: 20240704
+# Generating random states
+initial-state-generating-procedure: haar-random-states
+initial-state-generating-procedure-attributes:
+    initial-population-number: 3  # 10
+    seed: 20240704
+# Defining the QGA variant
+qga-attributes:
+    cloning: b-c-q-o
+    cloning-attributes:
+        cloning-basis: 1
+    mixing: mixing-fixed-index
+    mixing-attributes:
+        mixing-index: 1
+    sorting: full-sort
+    sorting-attributes:
+        problem-deffinition: hamiltonian
+    mutation: random-pauli
+    mutation-attributes:
+        mutation-probability: 0.0
+    generations: 10
